@@ -1,1709 +1,981 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>abbsy SERVER - Admin Panel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #2ecc71;
-            --primary-dark: #27ae60;
-            --primary-light: #a8e6cf;
-            --primary-ultra-light: #e8f8f0;
-            --accent: #1abc9c;
-            --white: #ffffff;
-            --off-white: #f8fffe;
-            --gray-50: #f7faf9;
-            --gray-100: #eef5f2;
-            --gray-200: #d4e5de;
-            --gray-300: #b0cfc0;
-            --gray-400: #7fb9a3;
-            --gray-500: #5a9e84;
-            --gray-600: #3d7a63;
-            --text-primary: #1a2e28;
-            --text-secondary: #4a6e5e;
-            --text-muted: #7a9e8e;
-            --shadow-md: 0 4px 16px rgba(46, 204, 113, 0.08);
-            --shadow-lg: 0 8px 32px rgba(46, 204, 113, 0.10);
-            --shadow-xl: 0 16px 48px rgba(46, 204, 113, 0.12);
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--off-white);
-            min-height: 100vh;
-        }
-
-        /* Admin Key Lock Screen */
-        .admin-lock {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .admin-lock.hidden {
-            display: none;
-        }
-
-        .admin-lock-box {
-            background: var(--white);
-            padding: 48px 40px;
-            border-radius: 24px;
-            max-width: 420px;
-            width: 90%;
-            text-align: center;
-            animation: modalSlide 0.4s ease;
-        }
-
-        .admin-lock-box .lock-icon {
-            font-size: 56px;
-            margin-bottom: 16px;
-        }
-
-        .admin-lock-box h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .admin-lock-box p {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
-
-        .admin-lock-box .key-input {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid var(--gray-200);
-            border-radius: 12px;
-            font-size: 16px;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease;
-            text-align: center;
-            letter-spacing: 4px;
-            font-weight: 600;
-        }
-
-        .admin-lock-box .key-input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
-        }
-
-        .admin-lock-box .key-input.error {
-            border-color: #e74c3c;
-            animation: shake 0.4s ease;
-        }
-
-        .admin-lock-box .unlock-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 12px;
-        }
-
-        .admin-lock-box .unlock-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(46, 204, 113, 0.4);
-        }
-
-        .admin-lock-box .unlock-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .admin-lock-box .error-msg {
-            color: #e74c3c;
-            font-size: 13px;
-            margin-top: 10px;
-            display: none;
-        }
-
-        .admin-lock-box .error-msg.show {
-            display: block;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        @keyframes modalSlide {
-            from { transform: translateY(-30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* Admin Header */
-        .admin-header {
-            background: var(--white);
-            padding: 16px 32px;
-            box-shadow: var(--shadow-md);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .admin-header .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .admin-header .logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-        }
-
-        .admin-header .logo h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 20px;
-            color: var(--text-primary);
-        }
-
-        .admin-header .logo h2 span {
-            color: var(--primary);
-        }
-
-        .admin-header .user-info {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .admin-header .user-info .badge {
-            padding: 6px 14px;
-            background: var(--primary-ultra-light);
-            color: var(--primary-dark);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .admin-header .user-info .logout-btn {
-            padding: 8px 20px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .admin-header .user-info .logout-btn:hover {
-            background: #c0392b;
-            transform: scale(1.05);
-        }
-
-        .admin-container {
-            display: flex;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 24px;
-            gap: 24px;
-        }
-
-        .sidebar {
-            width: 250px;
-            background: var(--white);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: var(--shadow-md);
-            height: fit-content;
-            position: sticky;
-            top: 90px;
-        }
-
-        .sidebar .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 4px;
-            color: var(--text-secondary);
-            text-decoration: none;
-        }
-
-        .sidebar .nav-item:hover {
-            background: var(--primary-ultra-light);
-            color: var(--primary-dark);
-        }
-
-        .sidebar .nav-item.active {
-            background: var(--primary-ultra-light);
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-
-        .sidebar .nav-item svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .sidebar .nav-item .count-badge {
-            margin-left: auto;
-            background: var(--primary);
-            color: white;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .content {
-            flex: 1;
-            background: var(--white);
-            border-radius: 16px;
-            padding: 28px;
-            box-shadow: var(--shadow-md);
-        }
-
-        .content .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--gray-100);
-        }
-
-        .content .page-header h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            color: var(--text-primary);
-        }
-
-        .content .page-header .subtitle {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            background: var(--gray-50);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--gray-200);
-        }
-
-        .stat-card .stat-number {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .stat-card .stat-label {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .stat-card .stat-icon {
-            float: right;
-            width: 36px;
-            height: 36px;
-            background: var(--primary-ultra-light);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-        }
-
-        .table-container {
-            overflow-x: auto;
-            margin-top: 16px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table thead {
-            background: var(--gray-50);
-        }
-
-        table th {
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--gray-100);
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        table tr:hover td {
-            background: var(--gray-50);
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status-badge.active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-badge.inactive {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-badge.expired {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-badge.pending {
-            background: #cce5ff;
-            color: #004085;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-
-        .btn-warning {
-            background: #f39c12;
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #d68910;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-        }
-
-        .btn-sm {
-            padding: 4px 12px;
-            font-size: 12px;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            z-index: 999;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal {
-            background: white;
-            border-radius: 20px;
-            padding: 32px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalSlide 0.3s ease;
-        }
-
-        .modal .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal .modal-header h3 {
-            font-family: 'Space Grotesk', sans-serif;
-            color: var(--text-primary);
-        }
-
-        .modal .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--text-muted);
-        }
-
-        .modal .form-group {
-            margin-bottom: 16px;
-        }
-
-        .modal .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-
-        .modal .form-group input,
-        .modal .form-group select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid var(--gray-200);
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .modal .form-group input:focus,
-        .modal .form-group select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
-        }
-
-        .modal .form-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-            justify-content: flex-end;
-        }
-
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            padding: 14px 24px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow-xl);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transform: translateX(120%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            max-width: 400px;
-            border-left: 4px solid var(--primary);
-        }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        .toast.error {
-            border-left-color: #e74c3c;
-        }
-
-        .toast .toast-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .toast.success .toast-icon {
-            background: rgba(46, 204, 113, 0.1);
-            color: var(--primary);
-        }
-
-        .toast.error .toast-icon {
-            background: rgba(231, 76, 60, 0.1);
-            color: #e74c3c;
-        }
-
-        .toast .toast-content .toast-title {
-            font-weight: 700;
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-
-        .toast .toast-content .toast-msg {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .page-section {
-            display: none;
-        }
-
-        .page-section.active {
-            display: block;
-        }
-
-        .duration-pills {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .duration-pill {
-            padding: 6px 16px;
-            border-radius: 20px;
-            border: 2px solid var(--gray-200);
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .duration-pill:hover {
-            border-color: var(--primary);
-            background: var(--primary-ultra-light);
-        }
-
-        .duration-pill.selected {
-            border-color: var(--primary);
-            background: var(--primary);
-            color: white;
-        }
-
-        .game-card {
-            background: var(--gray-50);
-            border: 1px solid var(--gray-200);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .game-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .game-card .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .game-card .game-title {
-            font-weight: 700;
-            color: var(--text-primary);
-            font-size: 18px;
-        }
-
-        .game-card .game-details {
-            display: flex;
-            gap: 20px;
-            margin-top: 8px;
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .game-card .game-details span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        @media (max-width: 768px) {
-            .admin-container {
-                flex-direction: column;
-                padding: 12px;
-            }
-
-            .sidebar {
-                width: 100%;
-                position: relative;
-                top: 0;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 4px;
-                padding: 12px;
-            }
-
-            .sidebar .nav-item {
-                flex: 1;
-                min-width: 80px;
-                justify-content: center;
-                font-size: 12px;
-            }
-
-            .admin-header {
-                flex-direction: column;
-                gap: 12px;
-                padding: 12px 16px;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .content {
-                padding: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .admin-header .user-info {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
-
-        .time-display {
-            font-family: 'Space Grotesk', monospace;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary-dark);
-            background: var(--primary-ultra-light);
-            padding: 4px 12px;
-            border-radius: 8px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PRIVATE WINGO - User Management Admin Panel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase 10 Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --wp--preset--aspect-ratio--square: 1;
+      --wp--preset--aspect-ratio--4-3: 4 / 3;
+      --wp--preset--aspect-ratio--3-4: 3 / 4;
+      --wp--preset--aspect-ratio--3-2: 3 / 2;
+      --wp--preset--aspect-ratio--2-3: 2 / 3;
+      --wp--preset--aspect-ratio--16-9: 16 / 9;
+      --wp--preset--aspect-ratio--9-16: 9 / 16;
+      --wp--preset--color--black: #000000;
+      --wp--preset--color--cyan-bluish-gray: #abb8c3;
+      --wp--preset--color--white: #ffffff;
+      --wp--preset--color--pale-pink: #f78da7;
+      --wp--preset--color--vivid-red: #cf2e2e;
+      --wp--preset--color--luminous-vivid-orange: #ff6900;
+      --wp--preset--color--luminous-vivid-amber: #fcb900;
+      --wp--preset--color--light-green-cyan: #7bdcb5;
+      --wp--preset--color--vivid-green-cyan: #00d084;
+      --wp--preset--color--pale-cyan-blue: #8ed1fc;
+      --wp--preset--color--vivid-cyan-blue: #0693e3;
+      --wp--preset--color--vivid-purple: #9b51e0;
+      --wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg, rgb(6, 147, 227) 0%, rgb(155, 81, 224) 100%);
+      --wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg, rgb(122, 220, 180) 0%, rgb(0, 208, 130) 100%);
+      --wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg, rgb(252, 185, 0) 0%, rgb(255, 105, 0) 100%);
+      --wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg, rgb(255, 105, 0) 0%, rgb(207, 46, 46) 100%);
+      --wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg, rgb(238, 238, 238) 0%, rgb(169, 184, 195) 100%);
+      --wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg, rgb(74, 234, 220) 0%, rgb(151, 120, 209) 20%, rgb(207, 42, 186) 40%, rgb(238, 44, 130) 60%, rgb(251, 105, 98) 80%, rgb(254, 248, 76) 100%);
+      --wp--preset--gradient--blush-light-purple: linear-gradient(135deg, rgb(255, 206, 236) 0%, rgb(152, 150, 240) 100%);
+      --wp--preset--gradient--blush-bordeaux: linear-gradient(135deg, rgb(254, 205, 165) 0%, rgb(254, 45, 45) 50%, rgb(107, 0, 62) 100%);
+      --wp--preset--gradient--luminous-dusk: linear-gradient(135deg, rgb(255, 203, 112) 0%, rgb(199, 81, 192) 50%, rgb(65, 88, 208) 100%);
+      --wp--preset--gradient--pale-ocean: linear-gradient(135deg, rgb(255, 245, 203) 0%, rgb(182, 227, 212) 50%, rgb(51, 167, 181) 100%);
+      --wp--preset--gradient--electric-grass: linear-gradient(135deg, rgb(202, 248, 128) 0%, rgb(113, 206, 126) 100%);
+      --wp--preset--gradient--midnight: linear-gradient(135deg, rgb(2, 3, 129) 0%, rgb(40, 116, 252) 100%);
+      --wp--preset--font-size--small: 13px;
+      --wp--preset--font-size--normal: 16px;
+      --wp--preset--font-size--medium: 20px;
+      --wp--preset--font-size--large: 36px;
+      --wp--preset--font-size--x-large: 42px;
+      --wp--preset--font-size--huge: 42px;
+      --wp--preset--spacing--20: 0.44rem;
+      --wp--preset--spacing--30: 0.67rem;
+      --wp--preset--spacing--40: 1rem;
+      --wp--preset--spacing--50: 1.5rem;
+      --wp--preset--spacing--60: 2.25rem;
+      --wp--preset--spacing--70: 3.38rem;
+      --wp--preset--spacing--80: 5.06rem;
+      --wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);
+      --wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);
+      --wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);
+      --wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);
+      --wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);
+      
+      --wp-block-synced-color: #7a00df;
+      --wp-block-synced-color--rgb: 122, 0, 223;
+      --wp-bound-block-color: var(--wp-block-synced-color);
+      --wp-editor-canvas-background: #ddd;
+      --wp-admin-theme-color: #007cba;
+      --wp-admin-theme-color--rgb: 0, 124, 186;
+      --wp-admin-theme-color-darker-10: #006ba1;
+      --wp-admin-theme-color-darker-10--rgb: 0, 107, 160.5;
+      --wp-admin-theme-color-darker-20: #005a87;
+      --wp-admin-theme-color-darker-20--rgb: 0, 90, 135;
+      --wp-admin-border-width-focus: 2px;
+      
+      --bg-dark: #080c14;
+      --panel-dark: #0f172a;
+      --panel-card: #1e293b;
+      --border-line: rgba(255, 255, 255, 0.12);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #0693e3;
+      --accent-purple: #9b51e0;
+      --accent-green: #00d084;
+      --accent-orange: #ff6900;
+      --accent-red: #cf2e2e;
+    }
+
+    ::selection {
+      background: #F0D200;
+      color: #000;
+      text-shadow: none;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(6, 147, 227, 0.15), transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(155, 81, 224, 0.15), transparent 40%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    .adminNav {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-line);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--wp--preset--shadow--natural);
+    }
+
+    .brandSection {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brandLogo {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      object-fit: cover;
+      border: 2px solid var(--accent-cyan);
+      box-shadow: 0 0 20px rgba(6, 147, 227, 0.4);
+    }
+
+    .brandText h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .brandText p {
+      font-size: var(--wp--preset--font-size--small);
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .topRightActions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .liveBadge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(0, 208, 132, 0.12);
+      border: 1px solid rgba(0, 208, 132, 0.3);
+      color: var(--accent-green);
+      font-size: var(--wp--preset--font-size--small);
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .livePulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 10px var(--accent-green);
+      animation: pulse 1.2s infinite alternate;
+    }
+
+    @keyframes pulse { to { opacity: 0.3; transform: scale(0.7); } }
+
+    .logoutBtn {
+      background: rgba(207, 46, 46, 0.15);
+      border: 1px solid rgba(207, 46, 46, 0.3);
+      color: #ff8585;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .logoutBtn:hover {
+      background: var(--accent-red);
+      color: #fff;
+    }
+
+    /* Layout Main Wrapper */
+    .container {
+      max-width: 1300px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Metric Summary Cards */
+    .metricsGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .metricCard {
+      background: var(--panel-dark);
+      border: 1px solid var(--border-line);
+      border-radius: 18px;
+      padding: 1.5rem;
+      box-shadow: var(--wp--preset--shadow--deep);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s, border-color 0.25s;
+    }
+    .metricCard:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .metricCard::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+    .metricCard.total::before { background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple); }
+    .metricCard.pending::before { background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange); }
+    .metricCard.approved::before { background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan); }
+    .metricCard.rejected::before { background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red); }
+
+    .metricLabel {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metricVal {
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin-top: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Toolbar & Search Filter */
+    .toolbar {
+      background: var(--panel-dark);
+      border: 1px solid var(--border-line);
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tabGroup {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .tabBtn {
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tabBtn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    .tabBtn.active {
+      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(6, 147, 227, 0.3);
+    }
+
+    .searchBox {
+      position: relative;
+      min-width: 260px;
+    }
+
+    .searchInput {
+      width: 100%;
+      padding: 10px 16px;
+      padding-left: 40px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-line);
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      transition: 0.2s;
+    }
+    .searchInput:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(6, 147, 227, 0.25);
+    }
+    .searchIcon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Table & User List Container */
+    .contentCard {
+      background: var(--panel-dark);
+      border: 1px solid var(--border-line);
+      border-radius: 20px;
+      box-shadow: var(--wp--preset--shadow--deep);
+      overflow: hidden;
+    }
+
+    .tableResponsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 14px 18px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border-bottom: 1px solid var(--border-line);
+    }
+
+    td {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .userAvatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent-cyan);
+    }
+    .userAvatarFallback {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .userInfo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .userName {
+      font-weight: 700;
+      color: #fff;
+    }
+    .userSub {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .uidCode {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      color: #ff6900;
+      background: rgba(255, 105, 0, 0.12);
+      border: 1px solid rgba(255, 105, 0, 0.25);
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .statusBadge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+    }
+    .statusBadge.pending {
+      background: rgba(252, 185, 0, 0.15);
+      border: 1px solid rgba(252, 185, 0, 0.35);
+      color: var(--accent-orange);
+    }
+    .statusBadge.approved {
+      background: rgba(0, 208, 132, 0.15);
+      border: 1px solid rgba(0, 208, 132, 0.35);
+      color: var(--accent-green);
+    }
+    .statusBadge.rejected {
+      background: rgba(207, 46, 46, 0.15);
+      border: 1px solid rgba(207, 46, 46, 0.35);
+      color: var(--accent-red);
+    }
+
+    /* Action Buttons */
+    .actionBtns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btnApprove {
+      background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan);
+      border: 0;
+      color: #000;
+      font-weight: 800;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 208, 132, 0.25);
+      transition: 0.2s;
+    }
+    .btnApprove:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+    .btnReject {
+      background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red);
+      border: 0;
+      color: #fff;
+      font-weight: 800;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(207, 46, 46, 0.25);
+      transition: 0.2s;
+    }
+    .btnReject:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+    .btnDelete {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-line);
+      color: var(--text-muted);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btnDelete:hover { background: var(--accent-red); color: #fff; }
+
+    /* Form Settings */
+    .settingsForm {
+      padding: 2rem;
+      max-width: 700px;
+    }
+
+    .formGroup {
+      margin-bottom: 1.5rem;
+    }
+    .formGroup label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .formGroup input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-line);
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    .formGroup input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(6, 147, 227, 0.25);
+    }
+
+    .btnSaveSettings {
+      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
+      border: 0;
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(6, 147, 227, 0.3);
+    }
+
+    /* Modal Passcode Login */
+    .passModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 1rem;
+    }
+
+    .passBox {
+      background: var(--panel-dark);
+      border: 1px solid var(--border-line);
+      border-radius: 24px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: var(--wp--preset--shadow--deep);
+    }
+
+    .passBox h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .passBox p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .passInput {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-line);
+      color: #fff;
+      font-size: 1.2rem;
+      text-align: center;
+      letter-spacing: 4px;
+      outline: none;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--accent-cyan);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000;
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- ADMIN LOCK SCREEN -->
-    <div class="admin-lock" id="adminLock">
-        <div class="admin-lock-box">
-            <div class="lock-icon">🔐</div>
-            <h2>Admin Access Required</h2>
-            <p>Enter the admin key to access the management panel</p>
-            <input type="password" class="key-input" id="adminKeyInput" placeholder="Enter Admin Key" maxlength="10" autofocus>
-            <div class="error-msg" id="keyError">❌ Invalid admin key. Please try again.</div>
-            <button class="unlock-btn" id="unlockBtn" onclick="unlockAdmin()">🔓 Unlock Admin Panel</button>
-        </div>
+  <!-- Passcode Login Modal -->
+  <div id="passModal" class="passModal">
+    <div class="passBox">
+      <h2>🔐 ADMIN LOCK</h2>
+      <p>Enter Master Security Passcode to Access User Management</p>
+      <input type="password" id="passInput" class="passInput" placeholder="••••••••" autocomplete="off">
+      <button id="loginBtn" class="btnSaveSettings" style="width: 100%;">UNLOCK ADMIN PANEL</button>
+    </div>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="adminNav">
+    <div class="brandSection">
+      <img id="headerLogo" class="brandLogo" src="https://www.image2url.com/r2/default/images/1783499309745-1177cad2-56e0-4922-b8ac-0b895b024146.jpg" alt="Logo">
+      <div class="brandText">
+        <h1 id="headerTitle">PRIVATE WINGO</h1>
+        <p>REALTIME FIREBASE USER MANAGEMENT</p>
+      </div>
     </div>
 
-    <!-- ADMIN CONTENT (Hidden until unlocked) -->
-    <div id="adminContent" style="display:none;">
-        <header class="admin-header">
-            <div class="logo">
-                <img src="https://www.image2url.com/r2/default/images/1783796828993-b42fe15a-aded-4dcb-a653-6608c48f1aa4.jpg" alt="Logo">
-                <h2><span>abbsy</span> SERVER</h2>
-            </div>
-            <div class="user-info">
-                <span class="badge" id="userRoleBadge">Admin</span>
-                <span style="color: var(--text-secondary); font-size: 14px;" id="userMobileDisplay">+91 **********</span>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
-        </header>
+    <div class="topRightActions">
+      <div class="liveBadge">
+        <span class="livePulse"></span>
+        FIREBASE LIVE
+      </div>
+      <button id="logoutBtn" class="logoutBtn">LOCK PANEL</button>
+    </div>
+  </header>
 
-        <div class="admin-container">
-            <aside class="sidebar">
-                <a href="#" class="nav-item active" onclick="showPage('dashboard', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-                        <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-                        <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-                        <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-                    </svg>
-                    Dashboard
-                    <span class="count-badge" id="dashboardCount">0</span>
-                </a>
-                <a href="#" class="nav-item" onclick="showPage('users', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                    Users
-                    <span class="count-badge" id="userCount">0</span>
-                </a>
-                <a href="#" class="nav-item" onclick="showPage('games', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                        <path d="M2 17l10 5 10-5"></path>
-                        <path d="M2 12l10 5 10-5"></path>
-                    </svg>
-                    Games & Time
-                    <span class="count-badge" id="gameCount">0</span>
-                </a>
-                <a href="#" class="nav-item" onclick="showPage('keys', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                    Keys
-                    <span class="count-badge" id="keyCount">0</span>
-                </a>
-                <a href="#" class="nav-item" onclick="showPage('transactions', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                    </svg>
-                    Transactions
-                    <span class="count-badge" id="txnCount">0</span>
-                </a>
-            </aside>
+  <!-- Main Container -->
+  <main class="container">
 
-            <main class="content">
-                <!-- Dashboard -->
-                <div class="page-section active" id="page-dashboard">
-                    <div class="page-header">
-                        <div>
-                            <h2>Dashboard</h2>
-                            <p class="subtitle">Overview of your game server management</p>
-                        </div>
-                        <button class="btn btn-primary" onclick="refreshData()">🔄 Refresh</button>
-                    </div>
-
-                    <div class="stats-grid" id="statsGrid">
-                        <div class="stat-card">
-                            <div class="stat-icon">👥</div>
-                            <div class="stat-number" id="totalUsers">0</div>
-                            <div class="stat-label">Total Users</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">🎮</div>
-                            <div class="stat-number" id="activePlayers">0</div>
-                            <div class="stat-label">Active Players</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">⏱️</div>
-                            <div class="stat-number" id="totalGameTime">0h</div>
-                            <div class="stat-label">Total Game Time</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">🔑</div>
-                            <div class="stat-number" id="totalKeys">0</div>
-                            <div class="stat-label">Active Keys</div>
-                        </div>
-                    </div>
-
-                    <h3 style="margin-top:24px; margin-bottom:12px; color: var(--text-primary);">Recent Activity</h3>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>User</th>
-                                    <th>Action</th>
-                                    <th>Duration</th>
-                                    <th>Status</th>
-                                    <th>Time</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentActivity">
-                                <tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Users -->
-                <div class="page-section" id="page-users">
-                    <div class="page-header">
-                        <div>
-                            <h2>User Management</h2>
-                            <p class="subtitle">Manage all registered users and their game time</p>
-                        </div>
-                        <button class="btn btn-primary" onclick="openAddUserModal()">➕ Add User</button>
-                    </div>
-
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Mobile</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Game Time</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usersTable">
-                                <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Games & Time -->
-                <div class="page-section" id="page-games">
-                    <div class="page-header">
-                        <div>
-                            <h2>🎮 Game Duration Management</h2>
-                            <p class="subtitle">Manage game time for all users</p>
-                        </div>
-                        <button class="btn btn-primary" onclick="openAddTimeModal()">➕ Add Game Time</button>
-                    </div>
-
-                    <div id="gamesContainer">
-                        <div class="game-card" style="background: var(--primary-ultra-light); border-color: var(--primary);">
-                            <div class="game-header">
-                                <span class="game-title">🎯 Active Game Sessions</span>
-                                <span class="time-display" id="totalActiveTime">0h 0m</span>
-                            </div>
-                            <div class="game-details">
-                                <span>👤 Active Players: <strong id="activePlayersCount">0</strong></span>
-                                <span>📊 Total Sessions: <strong id="totalSessions">0</strong></span>
-                            </div>
-                        </div>
-                        <div id="gamesList">
-                            <p style="color: var(--text-muted); text-align:center; padding: 20px;">No active game sessions</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Keys -->
-                <div class="page-section" id="page-keys">
-                    <div class="page-header">
-                        <div>
-                            <h2>Key Management</h2>
-                            <p class="subtitle">Generate and manage game access keys</p>
-                        </div>
-                        <button class="btn btn-primary" onclick="openAddKeyModal()">➕ Generate Key</button>
-                    </div>
-
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Key</th>
-                                    <th>Duration</th>
-                                    <th>Assigned To</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="keysTable">
-                                <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Transactions -->
-                <div class="page-section" id="page-transactions">
-                    <div class="page-header">
-                        <div>
-                            <h2>Transaction History</h2>
-                            <p class="subtitle">All game time purchases and activations</p>
-                        </div>
-                    </div>
-
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>User</th>
-                                    <th>Type</th>
-                                    <th>Duration</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transactionsTable">
-                                <tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </main>
-        </div>
+    <!-- Metrics Cards Summary -->
+    <div class="metricsGrid">
+      <div class="metricCard total">
+        <div class="metricLabel">TOTAL REGISTRATIONS</div>
+        <div id="countTotal" class="metricVal">0</div>
+      </div>
+      <div class="metricCard pending">
+        <div class="metricLabel">PENDING APPROVALS</div>
+        <div id="countPending" class="metricVal" style="color: var(--accent-orange);">0</div>
+      </div>
+      <div class="metricCard approved">
+        <div class="metricLabel">APPROVED USERS</div>
+        <div id="countApproved" class="metricVal" style="color: var(--accent-green);">0</div>
+      </div>
+      <div class="metricCard rejected">
+        <div class="metricLabel">REJECTED REQUESTS</div>
+        <div id="countRejected" class="metricVal" style="color: var(--accent-red);">0</div>
+      </div>
     </div>
 
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <div class="toast-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        </div>
-        <div class="toast-content">
-            <div class="toast-title" id="toastTitle">Success</div>
-            <div class="toast-msg" id="toastMsg">Action completed!</div>
-        </div>
+    <!-- Toolbar Filters -->
+    <div class="toolbar">
+      <div class="tabGroup">
+        <button class="tabBtn active" data-tab="pending">⏳ Pending (<span id="tabCountPending">0</span>)</button>
+        <button class="tabBtn" data-tab="approved">✅ Approved (<span id="tabCountApproved">0</span>)</button>
+        <button class="tabBtn" data-tab="rejected">❌ Rejected (<span id="tabCountRejected">0</span>)</button>
+        <button class="tabBtn" data-tab="all">👥 All Users (<span id="tabCountAll">0</span>)</button>
+        <button class="tabBtn" data-tab="settings">⚙️ System Settings</button>
+      </div>
+
+      <div id="searchGroup" class="searchBox">
+        <span class="searchIcon">🔍</span>
+        <input type="text" id="searchInput" class="searchInput" placeholder="Filter by Name, ID or UID...">
+      </div>
     </div>
 
-    <!-- Add User Modal -->
-    <div class="modal-overlay" id="addUserModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Add New User</h3>
-                <button class="modal-close" onclick="closeModal('addUserModal')">&times;</button>
-            </div>
-            <form id="addUserForm" onsubmit="addUser(event)">
-                <div class="form-group">
-                    <label>Mobile Number (10 digits)</label>
-                    <input type="tel" id="newUserMobile" maxlength="10" placeholder="Enter 10-digit mobile" required>
-                </div>
-                <div class="form-group">
-                    <label>Password (min 6 characters)</label>
-                    <input type="password" id="newUserPassword" minlength="6" placeholder="Enter password" required>
-                </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <select id="newUserRole">
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                        <option value="reseller">Reseller</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn" style="background:var(--gray-200);" onclick="closeModal('addUserModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add User</button>
-                </div>
-            </form>
-        </div>
+    <!-- Content Table Container -->
+    <div id="usersContainer" class="contentCard">
+      <div class="tableResponsive">
+        <table>
+          <thead>
+            <tr>
+              <th>User Details</th>
+              <th>Telegram ID</th>
+              <th>Submitted Game UID</th>
+              <th>Registration Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                Loading user records from Firebase...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- Add Game Time Modal -->
-    <div class="modal-overlay" id="addTimeModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Add Game Time</h3>
-                <button class="modal-close" onclick="closeModal('addTimeModal')">&times;</button>
-            </div>
-            <form id="addTimeForm" onsubmit="addGameTime(event)">
-                <div class="form-group">
-                    <label>Select User</label>
-                    <select id="timeUser" required>
-                        <option value="">Select a user...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Duration</label>
-                    <div class="duration-pills" id="durationPills">
-                        <span class="duration-pill" onclick="selectDuration(this, '1hour')">1 Hour</span>
-                        <span class="duration-pill" onclick="selectDuration(this, '3hours')">3 Hours</span>
-                        <span class="duration-pill" onclick="selectDuration(this, '6hours')">6 Hours</span>
-                        <span class="duration-pill" onclick="selectDuration(this, '12hours')">12 Hours</span>
-                        <span class="duration-pill" onclick="selectDuration(this, '24hours')">24 Hours</span>
-                        <span class="duration-pill" onclick="selectDuration(this, '7days')">7 Days</span>
-                        <span class="duration-pill" onclick="selectDuration(this, '30days')">30 Days</span>
-                    </div>
-                    <input type="hidden" id="selectedDuration" value="">
-                </div>
-                <div class="form-group">
-                    <label>Custom Hours (Optional)</label>
-                    <input type="number" id="customHours" min="1" max="1000" placeholder="Enter custom hours">
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn" style="background:var(--gray-200);" onclick="closeModal('addTimeModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Time</button>
-                </div>
-            </form>
+    <!-- Settings Container (Hidden by Default) -->
+    <div id="settingsContainer" class="contentCard" style="display: none;">
+      <div class="settingsForm">
+        <h2 style="font-weight: 800; margin-bottom: 1.5rem; color: var(--accent-cyan);">⚙️ GLOBAL SYSTEM CONFIGURATION</h2>
+        
+        <div class="formGroup">
+          <label>APPLICATION / BOT TITLE</label>
+          <input type="text" id="cfgAppName" placeholder="PRIVATE WINGO">
         </div>
+        <div class="formGroup">
+          <label>LOGO IMAGE URL</label>
+          <input type="text" id="cfgLogoUrl" placeholder="https://...">
+        </div>
+        <div class="formGroup">
+          <label>GAME REGISTER LINK</label>
+          <input type="text" id="cfgRegisterLink" placeholder="https://t.me/abbsydurov">
+        </div>
+        <div class="formGroup">
+          <label>WELCOME / SUPPORT MESSAGE</label>
+          <input type="text" id="cfgWelcomeMsg" placeholder="Contact @abbsydurov for support">
+        </div>
+        <div class="formGroup">
+          <label>TELEGRAM OWNER LINK</label>
+          <input type="text" id="cfgTgOwnerLink" placeholder="https://t.me/abbsydurov">
+        </div>
+
+        <button id="saveCfgBtn" class="btnSaveSettings">SAVE REALTIME SETTINGS</button>
+      </div>
     </div>
 
-    <!-- Add Key Modal -->
-    <div class="modal-overlay" id="addKeyModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Generate Game Key</h3>
-                <button class="modal-close" onclick="closeModal('addKeyModal')">&times;</button>
-            </div>
-            <form id="addKeyForm" onsubmit="addKey(event)">
-                <div class="form-group">
-                    <label>Duration</label>
-                    <select id="keyDuration" required>
-                        <option value="1hour">1 Hour</option>
-                        <option value="3hours">3 Hours</option>
-                        <option value="6hours">6 Hours</option>
-                        <option value="12hours">12 Hours</option>
-                        <option value="24hours">24 Hours</option>
-                        <option value="7days">7 Days</option>
-                        <option value="30days">30 Days</option>
-                    </select>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">Action completed successfully</div>
+
+  <script>
+    // ============================================================
+    // FIREBASE CONFIGURATION
+    // ============================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyBUl24gAzXYSDa6_tHUpsr10b7otk1buPg",
+      authDomain: "phxm-official.firebaseapp.com",
+      databaseURL: "https://phxm-official-default-rtdb.firebaseio.com",
+      projectId: "phxm-official",
+      storageBucket: "phxm-official.firebasestorage.app",
+      messagingSenderId: "484171889721",
+      appId: "1:484171889721:android:6cfdef93fa7f64f28861e8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // DOM Selectors
+    const $ = id => document.getElementById(id);
+
+    // Toast helper
+    function toast(msg) {
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(window.__t);
+      window.__t = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Passcode Auth
+    const PASSCODE = "admin123";
+    if (sessionStorage.getItem("admin_unlocked") === "true") {
+      $('passModal').style.display = 'none';
+    }
+
+    $('loginBtn').addEventListener('click', () => {
+      const input = $('passInput').value;
+      if (input === PASSCODE || input === "admin") {
+        sessionStorage.setItem("admin_unlocked", "true");
+        $('passModal').style.display = 'none';
+        toast("🔓 Admin Panel Unlocked");
+      } else {
+        alert("Incorrect Passcode!");
+      }
+    });
+
+    $('logoutBtn').addEventListener('click', () => {
+      sessionStorage.removeItem("admin_unlocked");
+      $('passModal').style.display = 'flex';
+      $('passInput').value = '';
+    });
+
+    // Global State
+    let usersData = [];
+    let activeTab = 'pending';
+    let searchQuery = '';
+
+    // Realtime User Data Listener
+    db.ref('users').on('value', snapshot => {
+      const val = snapshot.val() || {};
+      usersData = Object.values(val);
+      renderMetrics();
+      renderUsersTable();
+    });
+
+    // Realtime Settings Listener
+    db.ref('settings').on('value', snapshot => {
+      const val = snapshot.val() || {};
+      if (val.app_name) $('headerTitle').textContent = val.app_name;
+      if (val.logo_url) $('headerLogo').src = val.logo_url;
+      
+      $('cfgAppName').value = val.app_name || 'PRIVATE WINGO';
+      $('cfgLogoUrl').value = val.logo_url || '';
+      $('cfgRegisterLink').value = val.register_link || 'https://t.me/abbsydurov';
+      $('cfgWelcomeMsg').value = val.welcome_message || '';
+      $('cfgTgOwnerLink').value = val.tg_owner_link || 'https://t.me/abbsydurov';
+    });
+
+    // Calculate Metrics
+    function renderMetrics() {
+      const total = usersData.length;
+      const pending = usersData.filter(u => u.status === 'pending').length;
+      const approved = usersData.filter(u => u.status === 'approved').length;
+      const rejected = usersData.filter(u => u.status === 'rejected').length;
+
+      $('countTotal').textContent = total;
+      $('countPending').textContent = pending;
+      $('countApproved').textContent = approved;
+      $('countRejected').textContent = rejected;
+
+      $('tabCountPending').textContent = pending;
+      $('tabCountApproved').textContent = approved;
+      $('tabCountRejected').textContent = rejected;
+      $('tabCountAll').textContent = total;
+    }
+
+    // Render User Table based on active tab and search filter
+    function renderUsersTable() {
+      if (activeTab === 'settings') return;
+
+      let filtered = usersData;
+
+      // Filter by tab status
+      if (activeTab === 'pending') filtered = filtered.filter(u => u.status === 'pending');
+      else if (activeTab === 'approved') filtered = filtered.filter(u => u.status === 'approved');
+      else if (activeTab === 'rejected') filtered = filtered.filter(u => u.status === 'rejected');
+
+      // Filter by search query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(u => 
+          (u.first_name || '').toLowerCase().includes(q) ||
+          (u.username || '').toLowerCase().includes(q) ||
+          (u.telegram_id || '').toLowerCase().includes(q) ||
+          (u.uid || '').toLowerCase().includes(q)
+        );
+      }
+
+      // Sort by newest first
+      filtered.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+
+      const tbody = $('userTableBody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              No user records match the selected filter.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(u => {
+        const dateStr = u.created_at ? new Date(u.created_at).toLocaleString() : 'N/A';
+        const photoElem = u.photo_url 
+          ? `<img class="userAvatar" src="${u.photo_url}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">`
+          : '';
+        const fallbackElem = `<div class="userAvatarFallback" style="${u.photo_url ? 'display:none' : ''}">${(u.first_name || 'U')[0].toUpperCase()}</div>`;
+
+        return `
+          <tr>
+            <td>
+              <div class="userInfo">
+                ${photoElem}
+                ${fallbackElem}
+                <div>
+                  <div class="userName">${u.first_name || 'User'}</div>
+                  <div class="userSub">@${u.username || 'no_username'}</div>
                 </div>
-                <div class="form-group">
-                    <label>Assign to User (Optional)</label>
-                    <select id="keyUser">
-                        <option value="">Unassigned</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn" style="background:var(--gray-200);" onclick="closeModal('addKeyModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Generate Key</button>
-                </div>
-            </form>
-        </div>
-    </div>
+              </div>
+            </td>
+            <td style="font-family: 'JetBrains Mono', monospace;">${u.telegram_id}</td>
+            <td><span class="uidCode">${u.uid || 'N/A'}</span></td>
+            <td style="font-size: 12px; color: var(--text-muted);">${dateStr}</td>
+            <td><span class="statusBadge ${u.status}">${u.status}</span></td>
+            <td>
+              <div class="actionBtns">
+                ${u.status !== 'approved' ? `<button class="btnApprove" onclick="updateStatus('${u.telegram_id}', 'approved')">✅ Approve</button>` : ''}
+                ${u.status !== 'rejected' ? `<button class="btnReject" onclick="updateStatus('${u.telegram_id}', 'rejected')">❌ Reject</button>` : ''}
+                <button class="btnDelete" onclick="deleteUserRecord('${u.telegram_id}')">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
 
-    <script>
-        // ========== FIREBASE CONFIG ==========
-        const firebaseConfig = {
-            apiKey: "AIzaSyBUl24gAzXYSDa6_tHUpsr10b7otk1buPg",
-            authDomain: "phxm-official.firebaseapp.com",
-            databaseURL: "https://phxm-official-default-rtdb.firebaseio.com",
-            projectId: "phxm-official",
-            storageBucket: "phxm-official.firebasestorage.app",
-            messagingSenderId: "484171889721",
-            appId: "1:484171889721:android:6cfdef93fa7f64f28861e8"
-        };
+    // Action Handlers
+    window.updateStatus = function(telegramId, status) {
+      db.ref('users/' + telegramId + '/status').set(status).then(() => {
+        toast(`✅ User status updated to ${status.toUpperCase()}`);
+      }).catch(err => {
+        toast("❌ Error: " + err.message);
+      });
+    };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
-
-        let currentUser = null;
-        let currentUserData = null;
-        let allUsers = {};
-        let allKeys = {};
-        let allTransactions = {};
-        let selectedDuration = '';
-
-        // ========== ADMIN KEY ==========
-        const ADMIN_KEY = 'abbsy';
-
-        // ========== UNLOCK ADMIN ==========
-        function unlockAdmin() {
-            const input = document.getElementById('adminKeyInput');
-            const error = document.getElementById('keyError');
-            const btn = document.getElementById('unlockBtn');
-            
-            if (input.value.toLowerCase() === ADMIN_KEY) {
-                // Correct key - unlock admin
-                document.getElementById('adminLock').classList.add('hidden');
-                document.getElementById('adminContent').style.display = 'block';
-                error.classList.remove('show');
-                input.classList.remove('error');
-                
-                // Initialize admin panel
-                initializeAdmin();
-            } else {
-                // Wrong key
-                input.classList.add('error');
-                error.classList.add('show');
-                input.value = '';
-                input.focus();
-                
-                setTimeout(() => {
-                    input.classList.remove('error');
-                }, 500);
-            }
-        }
-
-        // Enter key support for admin unlock
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !document.getElementById('adminLock').classList.contains('hidden')) {
-                unlockAdmin();
-            }
+    window.deleteUserRecord = function(telegramId) {
+      if (confirm("Are you sure you want to delete this user record from Firebase?")) {
+        db.ref('users/' + telegramId).remove().then(() => {
+          toast("🗑️ User record deleted");
         });
+      }
+    };
 
-        // ========== TOAST ==========
-        function showToast(title, msg, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastTitle = document.getElementById('toastTitle');
-            const toastMsg = document.getElementById('toastMsg');
-            
-            toast.className = 'toast ' + type;
-            toastTitle.textContent = title;
-            toastMsg.textContent = msg;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 4000);
-        }
+    // Tab Switching
+    document.querySelectorAll('.tabBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tabBtn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTab = btn.dataset.tab;
 
-        // ========== MODAL ==========
-        function openModal(id) {
-            document.getElementById(id).classList.add('show');
+        if (activeTab === 'settings') {
+          $('usersContainer').style.display = 'none';
+          $('searchGroup').style.display = 'none';
+          $('settingsContainer').style.display = 'block';
+        } else {
+          $('settingsContainer').style.display = 'none';
+          $('searchGroup').style.display = 'block';
+          $('usersContainer').style.display = 'block';
+          renderUsersTable();
         }
+      });
+    });
 
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('show');
-        }
+    // Search Input Listener
+    $('searchInput').addEventListener('input', e => {
+      searchQuery = e.target.value;
+      renderUsersTable();
+    });
 
-        function openAddUserModal() { openModal('addUserModal'); }
-        function openAddKeyModal() { 
-            populateUserDropdown('keyUser');
-            openModal('addKeyModal'); 
-        }
-        function openAddTimeModal() { 
-            populateUserDropdown('timeUser');
-            openModal('addTimeModal'); 
-        }
+    // Save Settings
+    $('saveCfgBtn').addEventListener('click', () => {
+      const payload = {
+        app_name: $('cfgAppName').value.trim(),
+        logo_url: $('cfgLogoUrl').value.trim(),
+        register_link: $('cfgRegisterLink').value.trim(),
+        welcome_message: $('cfgWelcomeMsg').value.trim(),
+        tg_owner_link: $('cfgTgOwnerLink').value.trim()
+      };
 
-        function populateUserDropdown(selectId) {
-            const select = document.getElementById(selectId);
-            select.innerHTML = '<option value="">Select a user...</option>';
-            Object.values(allUsers).forEach(user => {
-                if (user.mobile && user.status !== 'inactive') {
-                    const opt = document.createElement('option');
-                    opt.value = user.uid || user.mobile;
-                    opt.textContent = user.mobile + ' (' + (user.role || 'user') + ')';
-                    select.appendChild(opt);
-                }
-            });
-        }
-
-        // ========== DURATION SELECTION ==========
-        function selectDuration(el, duration) {
-            document.querySelectorAll('.duration-pill').forEach(p => p.classList.remove('selected'));
-            el.classList.add('selected');
-            document.getElementById('selectedDuration').value = duration;
-            selectedDuration = duration;
-        }
-
-        // ========== PAGE NAVIGATION ==========
-        function showPage(page, el) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
-            
-            document.getElementById('page-' + page).classList.add('active');
-            if (el) el.classList.add('active');
-            
-            if (page === 'dashboard') refreshData();
-            else if (page === 'users') loadUsers();
-            else if (page === 'games') loadGames();
-            else if (page === 'keys') loadKeys();
-            else if (page === 'transactions') loadTransactions();
-        }
-
-        // ========== INITIALIZE ADMIN ==========
-        function initializeAdmin() {
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    database.ref('users/' + user.uid).once('value').then((snapshot) => {
-                        if (snapshot.exists()) {
-                            currentUserData = snapshot.val();
-                            document.getElementById('userMobileDisplay').textContent = '+91 ' + (currentUserData.mobile || '**********');
-                            document.getElementById('userRoleBadge').textContent = currentUserData.role || 'Admin';
-                            refreshData();
-                        }
-                    });
-                } else {
-                    // If not logged in, redirect to login
-                    window.location.href = 'index.html';
-                }
-            });
-        }
-
-        // ========== LOGOUT ==========
-        function logout() {
-            auth.signOut().then(() => {
-                window.location.href = 'index.html';
-            });
-        }
-
-        // ========== REFRESH DATA ==========
-        function refreshData() {
-            loadUsers();
-            loadKeys();
-            loadGames();
-            loadTransactions();
-            loadDashboardStats();
-        }
-
-        // ========== LOAD USERS ==========
-        function loadUsers() {
-            database.ref('users').on('value', (snapshot) => {
-                allUsers = snapshot.val() || {};
-                const table = document.getElementById('usersTable');
-                const count = document.getElementById('userCount');
-                
-                const users = Object.values(allUsers);
-                count.textContent = users.length;
-                
-                if (users.length === 0) {
-                    table.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No users found</td></tr>';
-                    return;
-                }
-                
-                table.innerHTML = users.map((user, index) => {
-                    const uid = Object.keys(allUsers)[index];
-                    const gameTime = user.gameTime || 0;
-                    const hours = Math.floor(gameTime / 3600000);
-                    const minutes = Math.floor((gameTime % 3600000) / 60000);
-                    
-                    return `
-                    <tr>
-                        <td>${user.mobile || 'N/A'}</td>
-                        <td>${user.email || 'N/A'}</td>
-                        <td><span class="status-badge ${user.role === 'admin' || user.role === 'superadmin' ? 'active' : 'pending'}">${user.role || 'user'}</span></td>
-                        <td><span class="time-display" style="font-size:14px;">${hours}h ${minutes}m</span></td>
-                        <td><span class="status-badge ${user.status !== 'inactive' ? 'active' : 'inactive'}">${user.status || 'active'}</span></td>
-                        <td>
-                            <button class="btn btn-success btn-sm" onclick="addTimeToUser('${uid}')">⏱️ Add Time</button>
-                            <button class="btn btn-warning btn-sm" onclick="toggleUserStatus('${uid}')">${user.status === 'inactive' ? 'Activate' : 'Suspend'}</button>
-                            ${user.role !== 'admin' && user.role !== 'superadmin' ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${uid}')">Delete</button>` : ''}
-                        </td>
-                    </tr>
-                `}).join('');
-            });
-        }
-
-        // ========== LOAD KEYS ==========
-        function loadKeys() {
-            database.ref('keys').on('value', (snapshot) => {
-                allKeys = snapshot.val() || {};
-                const table = document.getElementById('keysTable');
-                const count = document.getElementById('keyCount');
-                const keys = Object.values(allKeys);
-                count.textContent = keys.length;
-                
-                if (keys.length === 0) {
-                    table.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No keys generated</td></tr>';
-                    return;
-                }
-                
-                table.innerHTML = keys.map((key, index) => {
-                    const keyId = Object.keys(allKeys)[index];
-                    const user = key.assignedTo ? allUsers[key.assignedTo] : null;
-                    
-                    return `
-                    <tr>
-                        <td><code style="background:var(--gray-100);padding:4px 8px;border-radius:4px;font-weight:600;">${key.code || 'N/A'}</code></td>
-                        <td>${key.duration || 'N/A'}</td>
-                        <td>${user ? user.mobile : (key.assignedTo || 'Unassigned')}</td>
-                        <td><span class="status-badge ${key.status === 'active' ? 'active' : 'expired'}">${key.status || 'active'}</span></td>
-                        <td>${key.createdAt ? new Date(key.createdAt).toLocaleDateString() : 'N/A'}</td>
-                        <td>
-                            ${key.status === 'active' ? `<button class="btn btn-success btn-sm" onclick="activateKey('${keyId}')">Activate</button>` : ''}
-                            <button class="btn btn-danger btn-sm" onclick="deleteKey('${keyId}')">Delete</button>
-                        </td>
-                    </tr>
-                `}).join('');
-            });
-        }
-
-        // ========== LOAD GAMES ==========
-        function loadGames() {
-            const usersWithTime = Object.values(allUsers).filter(u => u.gameTime > 0);
-            const activePlayers = usersWithTime.filter(u => u.status !== 'inactive');
-            
-            document.getElementById('activePlayersCount').textContent = activePlayers.length;
-            document.getElementById('totalSessions').textContent = usersWithTime.length;
-            
-            let totalMinutes = 0;
-            usersWithTime.forEach(u => {
-                totalMinutes += (u.gameTime || 0) / 60000;
-            });
-            document.getElementById('totalActiveTime').textContent = Math.floor(totalMinutes / 60) + 'h ' + Math.floor(totalMinutes % 60) + 'm';
-            
-            const container = document.getElementById('gamesList');
-            if (usersWithTime.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); text-align:center; padding: 20px;">No active game sessions</p>';
-                return;
-            }
-            
-            container.innerHTML = usersWithTime.map((user, index) => {
-                const hours = Math.floor((user.gameTime || 0) / 3600000);
-                const minutes = Math.floor(((user.gameTime || 0) % 3600000) / 60000);
-                const uid = Object.keys(allUsers).find(key => allUsers[key] === user);
-                
-                return `
-                <div class="game-card">
-                    <div class="game-header">
-                        <span class="game-title">🎮 ${user.mobile || 'Unknown'}</span>
-                        <span class="time-display">${hours}h ${minutes}m</span>
-                    </div>
-                    <div class="game-details">
-                        <span>📱 ${user.role || 'user'}</span>
-                        <span>⏱️ ${user.lastGamePlay ? new Date(user.lastGamePlay).toLocaleString() : 'Never played'}</span>
-                        <button class="btn btn-success btn-sm" onclick="addTimeToUser('${uid}')">+ Add Time</button>
-                        <button class="btn btn-danger btn-sm" onclick="resetUserTime('${uid}')">Reset</button>
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        // ========== LOAD TRANSACTIONS ==========
-        function loadTransactions() {
-            database.ref('transactions').orderByChild('createdAt').limitToLast(50).on('value', (snapshot) => {
-                allTransactions = snapshot.val() || {};
-                const table = document.getElementById('transactionsTable');
-                const count = document.getElementById('txnCount');
-                const txns = Object.values(allTransactions).reverse();
-                count.textContent = txns.length;
-                
-                if (txns.length === 0) {
-                    table.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No transactions found</td></tr>';
-                    return;
-                }
-                
-                table.innerHTML = txns.map(txn => {
-                    const user = txn.userId ? allUsers[txn.userId] : null;
-                    return `
-                    <tr>
-                        <td>${user ? user.mobile : (txn.userId || 'Unknown')}</td>
-                        <td><span class="status-badge ${txn.type === 'purchase' ? 'active' : 'pending'}">${txn.type || 'N/A'}</span></td>
-                        <td>${txn.duration || 'N/A'}</td>
-                        <td><span class="status-badge ${txn.status === 'completed' ? 'active' : 'pending'}">${txn.status || 'pending'}</span></td>
-                        <td>${txn.createdAt ? new Date(txn.createdAt).toLocaleString() : 'N/A'}</td>
-                    </tr>
-                `}).join('');
-            });
-        }
-
-        // ========== DASHBOARD STATS ==========
-        function loadDashboardStats() {
-            const users = Object.values(allUsers);
-            const activeUsers = users.filter(u => u.status !== 'inactive');
-            const usersWithTime = users.filter(u => u.gameTime > 0);
-            
-            let totalTime = 0;
-            users.forEach(u => {
-                totalTime += (u.gameTime || 0);
-            });
-            const hours = Math.floor(totalTime / 3600000);
-            
-            document.getElementById('totalUsers').textContent = users.length;
-            document.getElementById('activePlayers').textContent = usersWithTime.length;
-            document.getElementById('totalGameTime').textContent = hours + 'h';
-            document.getElementById('totalKeys').textContent = Object.keys(allKeys).length;
-            document.getElementById('dashboardCount').textContent = users.length;
-            
-            const recent = users.slice(-5).reverse();
-            const table = document.getElementById('recentActivity');
-            if (recent.length === 0) {
-                table.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No recent activity</td></tr>';
-            } else {
-                table.innerHTML = recent.map(user => `
-                    <tr>
-                        <td>${user.mobile || 'N/A'}</td>
-                        <td>${user.lastGamePlay ? '🎮 Played Game' : '📱 Registered'}</td>
-                        <td>${user.gameTime ? Math.floor(user.gameTime/3600000) + 'h' : '0h'}</td>
-                        <td><span class="status-badge ${user.status !== 'inactive' ? 'active' : 'inactive'}">${user.status || 'active'}</span></td>
-                        <td>${user.lastGamePlay ? new Date(user.lastGamePlay).toLocaleString() : (user.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A')}</td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        // ========== ADD USER ==========
-        function addUser(e) {
-            e.preventDefault();
-            const mobile = document.getElementById('newUserMobile').value.trim();
-            const password = document.getElementById('newUserPassword').value;
-            const role = document.getElementById('newUserRole').value;
-            
-            if (!/^[0-9]{10}$/.test(mobile)) {
-                showToast('Error', 'Please enter a valid 10-digit mobile number.', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showToast('Error', 'Password must be at least 6 characters.', 'error');
-                return;
-            }
-            
-            const email = mobile + '@phxm-user.com';
-            
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    return database.ref('users/' + user.uid).set({
-                        uid: user.uid,
-                        mobile: mobile,
-                        email: email,
-                        role: role,
-                        status: 'active',
-                        gameTime: 0,
-                        createdAt: firebase.database.ServerValue.TIMESTAMP,
-                        createdBy: currentUser ? currentUser.uid : 'system'
-                    });
-                })
-                .then(() => {
-                    showToast('Success', 'User added successfully!');
-                    closeModal('addUserModal');
-                    document.getElementById('addUserForm').reset();
-                    refreshData();
-                })
-                .catch((error) => {
-                    showToast('Error', error.message, 'error');
-                });
-        }
-
-        // ========== ADD GAME TIME ==========
-        function addGameTime(e) {
-            e.preventDefault();
-            const userId = document.getElementById('timeUser').value;
-            let duration = document.getElementById('selectedDuration').value;
-            const customHours = parseInt(document.getElementById('customHours').value);
-            
-            if (!userId) {
-                showToast('Error', 'Please select a user.', 'error');
-                return;
-            }
-            
-            let timeInMs = 0;
-            if (customHours && customHours > 0) {
-                timeInMs = customHours * 3600000;
-            } else if (duration) {
-                const durationMap = {
-                    '1hour': 3600000,
-                    '3hours': 10800000,
-                    '6hours': 21600000,
-                    '12hours': 43200000,
-                    '24hours': 86400000,
-                    '7days': 604800000,
-                    '30days': 2592000000
-                };
-                timeInMs = durationMap[duration] || 0;
-            }
-            
-            if (timeInMs === 0) {
-                showToast('Error', 'Please select a duration or enter custom hours.', 'error');
-                return;
-            }
-            
-            const userRef = database.ref('users/' + userId);
-            userRef.once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    const currentTime = snapshot.val().gameTime || 0;
-                    const newTime = currentTime + timeInMs;
-                    return userRef.update({
-                        gameTime: newTime,
-                        lastGameUpdate: firebase.database.ServerValue.TIMESTAMP
-                    });
-                }
-            }).then(() => {
-                const user = allUsers[userId];
-                database.ref('transactions').push({
-                    userId: userId,
-                    userMobile: user ? user.mobile : 'Unknown',
-                    type: 'purchase',
-                    duration: duration || (customHours + ' hours'),
-                    durationMs: timeInMs,
-                    status: 'completed',
-                    createdAt: firebase.database.ServerValue.TIMESTAMP,
-                    addedBy: currentUser ? currentUser.uid : 'system'
-                });
-                
-                showToast('Success', 'Game time added successfully!');
-                closeModal('addTimeModal');
-                document.getElementById('addTimeForm').reset();
-                document.querySelectorAll('.duration-pill').forEach(p => p.classList.remove('selected'));
-                refreshData();
-            }).catch((error) => {
-                showToast('Error', error.message, 'error');
-            });
-        }
-
-        // ========== ADD TIME TO USER ==========
-        function addTimeToUser(uid) {
-            populateUserDropdown('timeUser');
-            document.getElementById('timeUser').value = uid;
-            openModal('addTimeModal');
-        }
-
-        // ========== GENERATE KEY ==========
-        function addKey(e) {
-            e.preventDefault();
-            const duration = document.getElementById('keyDuration').value;
-            const assignedTo = document.getElementById('keyUser').value;
-            
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 16; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            code = code.match(/.{4}/g).join('-');
-            
-            const keyData = {
-                code: code,
-                duration: duration,
-                assignedTo: assignedTo || 'unassigned',
-                status: 'active',
-                createdAt: firebase.database.ServerValue.TIMESTAMP,
-                createdBy: currentUser ? currentUser.uid : 'system'
-            };
-            
-            database.ref('keys').push(keyData)
-                .then(() => {
-                    showToast('Success', 'Key generated successfully! Key: ' + code);
-                    closeModal('addKeyModal');
-                    document.getElementById('addKeyForm').reset();
-                    loadKeys();
-                })
-                .catch((error) => {
-                    showToast('Error', error.message, 'error');
-                });
-        }
-
-        // ========== ACTIVATE KEY ==========
-        function activateKey(keyId) {
-            const key = allKeys[keyId];
-            if (!key) return;
-            
-            if (key.assignedTo && key.assignedTo !== 'unassigned') {
-                const userId = key.assignedTo;
-                const durationMap = {
-                    '1hour': 3600000,
-                    '3hours': 10800000,
-                    '6hours': 21600000,
-                    '12hours': 43200000,
-                    '24hours': 86400000,
-                    '7days': 604800000,
-                    '30days': 2592000000
-                };
-                const timeInMs = durationMap[key.duration] || 0;
-                
-                if (timeInMs > 0) {
-                    const userRef = database.ref('users/' + userId);
-                    userRef.once('value').then((snapshot) => {
-                        if (snapshot.exists()) {
-                            const currentTime = snapshot.val().gameTime || 0;
-                            return userRef.update({
-                                gameTime: currentTime + timeInMs,
-                                lastGameUpdate: firebase.database.ServerValue.TIMESTAMP
-                            });
-                        }
-                    }).then(() => {
-                        database.ref('keys/' + keyId).update({
-                            status: 'used',
-                            usedAt: firebase.database.ServerValue.TIMESTAMP,
-                            usedBy: userId
-                        });
-                        showToast('Success', 'Key activated successfully! Time added to user.');
-                        loadKeys();
-                        loadUsers();
-                    });
-                }
-            } else {
-                showToast('Error', 'This key is not assigned to any user.', 'error');
-            }
-        }
-
-        // ========== DELETE KEY ==========
-        function deleteKey(keyId) {
-            if (!confirm('Are you sure you want to delete this key?')) return;
-            database.ref('keys/' + keyId).remove()
-                .then(() => {
-                    showToast('Success', 'Key deleted successfully.');
-                    loadKeys();
-                })
-                .catch((error) => {
-                    showToast('Error', error.message, 'error');
-                });
-        }
-
-        // ========== TOGGLE USER STATUS ==========
-        function toggleUserStatus(uid) {
-            const user = allUsers[uid];
-            if (!user) return;
-            const newStatus = user.status === 'inactive' ? 'active' : 'inactive';
-            database.ref('users/' + uid).update({
-                status: newStatus,
-                updatedAt: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                showToast('Success', 'User status updated.');
-                refreshData();
-            }).catch((error) => {
-                showToast('Error', error.message, 'error');
-            });
-        }
-
-        // ========== DELETE USER ==========
-        function deleteUser(uid) {
-            if (!confirm('Are you sure you want to delete this user?')) return;
-            database.ref('users/' + uid).update({
-                status: 'deleted',
-                deletedAt: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                showToast('Success', 'User deleted.');
-                refreshData();
-            }).catch((error) => {
-                showToast('Error', error.message, 'error');
-            });
-        }
-
-        // ========== RESET USER TIME ==========
-        function resetUserTime(uid) {
-            if (!confirm('Are you sure you want to reset game time for this user?')) return;
-            database.ref('users/' + uid).update({
-                gameTime: 0,
-                lastGameUpdate: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                showToast('Success', 'Game time reset successfully.');
-                refreshData();
-            }).catch((error) => {
-                showToast('Error', error.message, 'error');
-            });
-        }
-    </script>
+      db.ref('settings').update(payload).then(() => {
+        toast("✅ System Settings Saved & Synced Live!");
+      }).catch(err => {
+        toast("❌ Save Error: " + err.message);
+      });
+    });
+  </script>
 </body>
 </html>
