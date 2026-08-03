@@ -1,9 +1,27 @@
+<?php
+// index.php - PRIVATE WINGO User Application (PHP + SQL Backend)
+require_once __DIR__ . '/db.php';
+
+// Fetch initial settings from Database
+$stmt = $pdo->query("SELECT setting_key, setting_value FROM settings");
+$rows = $stmt->fetchAll();
+$initialSettings = [];
+foreach ($rows as $r) {
+    $initialSettings[$r['setting_key']] = $r['setting_value'];
+}
+
+$appName = $initialSettings['app_name'] ?? 'PRIVATE WINGO';
+$logoUrl = $initialSettings['logo_url'] ?? 'https://www.image2url.com/r2/default/images/1783499309745-1177cad2-56e0-4922-b8ac-0b895b024146.jpg';
+$registerLink = $initialSettings['register_link'] ?? 'https://t.me/abbsydurov';
+$welcomeMsg = $initialSettings['welcome_message'] ?? 'Support, setup ya help ke liye Telegram par @abbsydurov se direct contact karo.';
+$tgOwnerLink = $initialSettings['tg_owner_link'] ?? 'https://t.me/abbsydurov';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>PRIVATE WINGO - Wingo 1M Cyber Vault</title>
+  <title><?php echo htmlspecialchars($appName); ?> - Wingo 1M Cyber Vault</title>
   
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -11,10 +29,6 @@
   <!-- Lottie Player -->
   <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-
-  <!-- Firebase 10 Compatibility SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <style>
     :root {
@@ -287,23 +301,6 @@
     .pv{font-family:var(--mono);font-size:1rem;font-weight:900;margin-top:4px}
     .msg{font-size:1.2rem;font-weight:900;margin:14px 0}
     .ok{width:100%;border:0;border-radius:15px;padding:13px;background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);color:#fff;font-family:var(--mono);font-weight:900;cursor:pointer}
-
-    /* Admin Panel View */
-    .adminPanelCard{padding:18px;border-color:var(--border-line)}
-    .adminTabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border-line);padding-bottom:10px}
-    .adminTabBtn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border-line);background:rgba(0,0,0,.4);color:var(--text-muted);font-family:var(--mono);font-size:.65rem;font-weight:900;cursor:pointer}
-    .adminTabBtn.active{background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);color:#fff;border-color:var(--accent-cyan)}
-    
-    .userRow{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border-line);border-radius:12px;background:rgba(0,0,0,.4);margin-bottom:10px}
-    .uMeta h4{font-size:.9rem;font-weight:900;color:#fff}
-    .uMeta p{font-family:var(--mono);font-size:.62rem;color:var(--text-muted)}
-    .uActions{display:flex;gap:6px}
-    .btnApprove{padding:6px 12px;border-radius:8px;border:0;background:var(--accent-green);color:#000;font-family:var(--mono);font-size:.65rem;font-weight:900;cursor:pointer}
-    .btnReject{padding:6px 12px;border-radius:8px;border:0;background:var(--accent-red);color:#fff;font-family:var(--mono);font-size:.65rem;font-weight:900;cursor:pointer}
-
-    .formGroup{margin-bottom:14px;text-align:left}
-    .formGroup label{display:block;font-family:var(--mono);font-size:.62rem;color:var(--text-muted);margin-bottom:5px}
-    .formGroup input{width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,.6);border:1px solid var(--border-line);color:#fff;font-family:var(--mono);font-size:.85rem}
   </style>
 </head>
 <body>
@@ -329,18 +326,16 @@
     <!-- Main Scroll View Area -->
     <section class="scroll">
       
-      <!-- ============================================================
-           PAGE 1: START / REGISTRATION LANDING VIEW
-           ============================================================ -->
+      <!-- PAGE 1: START / REGISTRATION LANDING VIEW -->
       <div id="startView" class="pageView active">
         <div class="top">
           <div class="brand">
             <div class="sigil">
-              <img id="appLogoImg1" src="https://www.image2url.com/r2/default/images/1783499309745-1177cad2-56e0-4922-b8ac-0b895b024146.jpg" alt="PW" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <img id="appLogoImg1" src="<?php echo htmlspecialchars($logoUrl); ?>" alt="PW" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
               <span style="display:none">PW</span>
             </div>
             <div>
-              <h1 id="appNameText1">PRIVATE WINGO</h1>
+              <h1 id="appNameText1"><?php echo htmlspecialchars($appName); ?></h1>
               <p>WINGO 1 MINUTE // CYBER VAULT</p>
             </div>
           </div>
@@ -355,7 +350,7 @@
 
         <!-- Telegram User Profile Card -->
         <div class="card tgProfileCard">
-          <img id="tgUserPhoto" class="tgAvatar" src="https://www.image2url.com/r2/default/images/1783499309745-1177cad2-56e0-4922-b8ac-0b895b024146.jpg" onerror="this.style.display='none';document.getElementById('tgUserPhotoFallback').style.display='grid'">
+          <img id="tgUserPhoto" class="tgAvatar" src="<?php echo htmlspecialchars($logoUrl); ?>" onerror="this.style.display='none';document.getElementById('tgUserPhotoFallback').style.display='grid'">
           <div id="tgUserPhotoFallback" class="tgAvatarFallback" style="display:none">TG</div>
           <div class="tgDetails">
             <h2 id="tgUserName">Telegram User</h2>
@@ -386,17 +381,15 @@
         </div>
       </div>
 
-      <!-- ============================================================
-           PAGE 2: PENDING APPROVAL VIEW
-           ============================================================ -->
+      <!-- PAGE 2: PENDING APPROVAL VIEW -->
       <div id="pendingView" class="pageView">
         <div class="top">
           <div class="brand">
             <div class="sigil">
-              <img id="appLogoImg2" src="https://www.image2url.com/r2/default/images/1783499309745-1177cad2-56e0-4922-b8ac-0b895b024146.jpg" alt="PW">
+              <img id="appLogoImg2" src="<?php echo htmlspecialchars($logoUrl); ?>" alt="PW">
             </div>
             <div>
-              <h1 id="appNameText2">PRIVATE WINGO</h1>
+              <h1 id="appNameText2"><?php echo htmlspecialchars($appName); ?></h1>
               <p>STATUS // PENDING APPROVAL</p>
             </div>
           </div>
@@ -423,9 +416,7 @@
         </div>
       </div>
 
-      <!-- ============================================================
-           PAGE 3: REJECTED / ACCESS DENIED VIEW
-           ============================================================ -->
+      <!-- PAGE 3: REJECTED / ACCESS DENIED VIEW -->
       <div id="rejectedView" class="pageView">
         <div class="card rejectedCard">
           <div style="font-size:3rem;margin-bottom:10px;">🚫</div>
@@ -437,19 +428,17 @@
         </div>
       </div>
 
-      <!-- ============================================================
-           PAGE 4: UNLOCKED WINGO 1M VAULT DASHBOARD
-           ============================================================ -->
+      <!-- PAGE 4: UNLOCKED WINGO 1M VAULT DASHBOARD -->
       <div id="dashboardView" class="pageView">
         <!-- Sub-tabs for Dashboard -->
         <div id="homeSubView" class="subView active">
           <div class="top">
             <div class="brand">
               <div class="sigil">
-                <img id="appLogoImg3" src="https://www.image2url.com/r2/default/images/1783499309745-1177cad2-56e0-4922-b8ac-0b895b024146.jpg" alt="PW">
+                <img id="appLogoImg3" src="<?php echo htmlspecialchars($logoUrl); ?>" alt="PW">
               </div>
               <div>
-                <h1 id="appNameText3">PRIVATE WINGO</h1>
+                <h1 id="appNameText3"><?php echo htmlspecialchars($appName); ?></h1>
                 <p>WINGO 1 MINUTE // HACKER CORE</p>
               </div>
             </div>
@@ -548,67 +537,8 @@
           <div class="card help">
             <div class="helpIcon">✈️</div>
             <h2>Contact Owner Support</h2>
-            <p id="welcomeMsgText">Support, setup ya help ke liye Telegram par @abbsydurov se direct contact karo.</p>
+            <p id="welcomeMsgText"><?php echo htmlspecialchars($welcomeMsg); ?></p>
             <button id="tgOwnerLinkBtn" class="tgOwnerBtn">OPEN t.me/abbsydurov SUPPORT</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           PAGE 5: ADMIN CONTROL PANEL
-           ============================================================ -->
-      <div id="adminView" class="pageView">
-        <div class="card adminPanelCard">
-          <div class="top" style="margin-bottom:10px;">
-            <h2 style="font-size:1.2rem;color:var(--accent-cyan);">⚙️ ADMIN CONTROL PANEL</h2>
-            <button id="closeAdminBtn" class="clear" style="border-color:var(--border-line);">EXIT ADMIN</button>
-          </div>
-
-          <div class="adminTabs">
-            <button class="adminTabBtn active" data-tab="pendingTab">PENDING USERS</button>
-            <button class="adminTabBtn" data-tab="allUsersTab">ALL USERS</button>
-            <button class="adminTabBtn" data-tab="settingsTab">SETTINGS</button>
-          </div>
-
-          <!-- Pending Approvals Tab -->
-          <div id="pendingTab" class="adminTabContent">
-            <div id="pendingUsersList">
-              <p style="font-family:var(--mono);font-size:.7rem;color:var(--text-muted);">Loading pending requests...</p>
-            </div>
-          </div>
-
-          <!-- All Users Tab -->
-          <div id="allUsersTab" class="adminTabContent" style="display:none">
-            <div id="allUsersList">
-              <p style="font-family:var(--mono);font-size:.7rem;color:var(--text-muted);">Loading user records...</p>
-            </div>
-          </div>
-
-          <!-- Dynamic Settings Tab -->
-          <div id="settingsTab" class="adminTabContent" style="display:none">
-            <div class="formGroup">
-              <label>APP NAME / BOT TITLE</label>
-              <input type="text" id="settingAppName" placeholder="PRIVATE WINGO">
-            </div>
-            <div class="formGroup">
-              <label>LOGO IMAGE URL</label>
-              <input type="text" id="settingLogoUrl" placeholder="https://...">
-            </div>
-            <div class="formGroup">
-              <label>REGISTER BUTTON LINK (Game URL)</label>
-              <input type="text" id="settingRegisterLink" placeholder="https://t.me/abbsydurov">
-            </div>
-            <div class="formGroup">
-              <label>WELCOME / SUPPORT MESSAGE</label>
-              <input type="text" id="settingWelcomeMsg" placeholder="Contact @abbsydurov for support">
-            </div>
-            <div class="formGroup">
-              <label>TELEGRAM OWNER LINK</label>
-              <input type="text" id="settingTgOwnerLink" placeholder="https://t.me/abbsydurov">
-            </div>
-            <button id="saveSettingsBtn" class="submitUidBtn" style="background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);color:#fff;">
-              SAVE SYSTEM SETTINGS
-            </button>
           </div>
         </div>
       </div>
@@ -620,33 +550,23 @@
       <button class="navBtn active" data-dashview="homeSubView"><span class="ico">⌬</span><span>HOME</span></button>
       <button class="navBtn" data-dashview="historySubView"><span class="ico">▤</span><span>HISTORY</span></button>
       <button class="navBtn" data-dashview="helpSubView"><span class="ico">✦</span><span>HELP</span></button>
-      <button class="navBtn" id="adminTriggerBtn"><span class="ico">⚙️</span><span>ADMIN</span></button>
     </nav>
   </main>
 
   <script>
-    // ============================================================
-    // FIREBASE INITIALIZATION
-    // ============================================================
-    const firebaseConfig = {
-      apiKey: "AIzaSyBUl24gAzXYSDa6_tHUpsr10b7otk1buPg",
-      authDomain: "phxm-official.firebaseapp.com",
-      databaseURL: "https://phxm-official-default-rtdb.firebaseio.com",
-      projectId: "phxm-official",
-      storageBucket: "phxm-official.firebasestorage.app",
-      messagingSenderId: "484171889721",
-      appId: "1:484171889721:android:6cfdef93fa7f64f28861e8"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
     // STRICT USER APPROVAL FLAG (NO PREDICTIONS UNTIL APPROVED)
     let isUserApproved = false;
 
-    // ============================================================
+    // Initial PHP System Settings
+    let appSettings = {
+      app_name: "<?php echo addslashes($appName); ?>",
+      logo_url: "<?php echo addslashes($logoUrl); ?>",
+      register_link: "<?php echo addslashes($registerLink); ?>",
+      welcome_message: "<?php echo addslashes($welcomeMsg); ?>",
+      tg_owner_link: "<?php echo addslashes($tgOwnerLink); ?>"
+    };
+
     // WINGO BALL IMAGE MAPPING (0 - 9)
-    // ============================================================
     const BALL_IMAGES = {
       0: 'https://i.postimg.cc/Wzrp0gRV/ball-0-053d2b99.png',
       1: 'https://i.postimg.cc/Qt7ZzDfk/ball-1-12ea01b7.png',
@@ -660,12 +580,9 @@
       9: 'https://i.postimg.cc/cL5q4CjB/ball-9-19985870.png'
     };
 
-    // Helper function for quick DOM selection
     const $ = id => document.getElementById(id);
 
-    // ============================================================
     // TELEGRAM USER DATA DETECTION
-    // ============================================================
     let tgUser = {
       id: "99887766",
       first_name: "Demo User",
@@ -685,7 +602,6 @@
       }
     }
 
-    // Populate user profile info on Registration View
     $('tgUserId').textContent = tgUser.id;
     $('tgUserName').textContent = tgUser.first_name;
     $('tgUserHandle').textContent = "@" + tgUser.username;
@@ -695,23 +611,17 @@
       $('tgUserPhotoFallback').style.display = 'none';
     }
 
-    // Dynamic Settings State
-    let appSettings = {
-      app_name: "PRIVATE WINGO",
-      logo_url: "https://www.image2url.com/r2/default/images/1783499309745-1177cad2-56e0-4922-b8ac-0b895b024146.jpg",
-      register_link: "https://t.me/abbsydurov",
-      welcome_message: "Support, setup ya help ke liye Telegram par @abbsydurov se direct contact karo.",
-      tg_owner_link: "https://t.me/abbsydurov"
-    };
-
-    // Sync Firebase Settings in Real-Time
-    db.ref('settings').on('value', snapshot => {
-      const val = snapshot.val();
-      if (val) {
-        appSettings = { ...appSettings, ...val };
-        applySettingsToUI();
-      }
-    });
+    // Fetch dynamic settings from api.php
+    function fetchSystemSettings() {
+      fetch('api.php?action=get_settings')
+        .then(r => r.json())
+        .then(data => {
+          if (data.success && data.settings) {
+            appSettings = { ...appSettings, ...data.settings };
+            applySettingsToUI();
+          }
+        }).catch(err => console.error(err));
+    }
 
     function applySettingsToUI() {
       if (appSettings.app_name) {
@@ -727,36 +637,22 @@
       if (appSettings.welcome_message) {
         $('welcomeMsgText').textContent = appSettings.welcome_message;
       }
-      $('settingAppName').value = appSettings.app_name || '';
-      $('settingLogoUrl').value = appSettings.logo_url || '';
-      $('settingRegisterLink').value = appSettings.register_link || '';
-      $('settingWelcomeMsg').value = appSettings.welcome_message || '';
-      $('settingTgOwnerLink').value = appSettings.tg_owner_link || '';
     }
 
-    // Register Button Click Handler
     $('registerLinkBtn').addEventListener('click', () => {
-      const url = appSettings.register_link || "https://t.me/abbsydurov";
-      window.open(url, '_blank');
+      window.open(appSettings.register_link || "https://t.me/abbsydurov", '_blank');
     });
 
-    // Telegram Owner Support Link Button
     $('tgOwnerLinkBtn').addEventListener('click', () => {
-      const url = appSettings.tg_owner_link || "https://t.me/abbsydurov";
-      window.open(url, '_blank');
+      window.open(appSettings.tg_owner_link || "https://t.me/abbsydurov", '_blank');
     });
 
-    // ============================================================
-    // USER REGISTRATION & APPROVAL STATUS FLOW
-    // ============================================================
-    let userStatusListener = null;
-
+    // PAGE SWITCHING
     function switchPageView(viewId) {
       document.querySelectorAll('.pageView').forEach(el => el.classList.remove('active'));
       const target = $(viewId);
       if (target) target.classList.add('active');
       
-      // Bottom navigation is visible only on Dashboard View
       if (viewId === 'dashboardView') {
         $('bottomNav').style.display = 'flex';
       } else {
@@ -764,36 +660,35 @@
       }
     }
 
-    // Listen to current user status from Firebase Realtime Database
-    function listenToUserStatus() {
-      const userRef = db.ref('users/' + tgUser.id);
-      if (userStatusListener) userRef.off('value', userStatusListener);
-
-      userStatusListener = userRef.on('value', snapshot => {
-        const userData = snapshot.val();
-        if (!userData) {
-          // Not registered yet -> show Start / Registration view
-          isUserApproved = false;
-          $('modal').classList.remove('show');
-          switchPageView('startView');
-        } else if (userData.status === 'pending') {
-          // Submitted UID waiting for approval
-          isUserApproved = false;
-          $('modal').classList.remove('show');
-          $('pendingUidVal').textContent = userData.uid || '------';
-          $('pendingTgIdVal').textContent = tgUser.id;
-          switchPageView('pendingView');
-        } else if (userData.status === 'rejected') {
-          isUserApproved = false;
-          $('modal').classList.remove('show');
-          switchPageView('rejectedView');
-        } else if (userData.status === 'approved') {
-          isUserApproved = true;
-          switchPageView('dashboardView');
-          toast('🎉 Access Granted! Wingo 1M Vault Unlocked');
-          fetchData();
-        }
-      });
+    // USER STATUS POLLING VIA PHP REST API
+    function checkUserStatus() {
+      fetch(`api.php?action=check_status&telegram_id=${encodeURIComponent(tgUser.id)}`)
+        .then(r => r.json())
+        .then(res => {
+          if (!res.registered || res.status === 'not_registered') {
+            isUserApproved = false;
+            $('modal').classList.remove('show');
+            switchPageView('startView');
+          } else if (res.status === 'pending') {
+            isUserApproved = false;
+            $('modal').classList.remove('show');
+            $('pendingUidVal').textContent = res.uid || '------';
+            $('pendingTgIdVal').textContent = tgUser.id;
+            switchPageView('pendingView');
+          } else if (res.status === 'rejected') {
+            isUserApproved = false;
+            $('modal').classList.remove('show');
+            switchPageView('rejectedView');
+          } else if (res.status === 'approved') {
+            if (!isUserApproved) {
+              isUserApproved = true;
+              switchPageView('dashboardView');
+              toast('🎉 Access Granted! Wingo 1M Vault Unlocked');
+              fetchData();
+            }
+          }
+        })
+        .catch(err => console.error('Status check error:', err));
     }
 
     // Submit UID Action
@@ -804,133 +699,36 @@
         return;
       }
 
-      db.ref('users/' + tgUser.id).set({
-        telegram_id: tgUser.id,
-        username: tgUser.username,
-        first_name: tgUser.first_name,
-        photo_url: tgUser.photo_url || "",
-        uid: uidVal,
-        status: "pending",
-        created_at: Date.now()
-      }).then(() => {
-        toast('✅ UID Submitted for Admin Approval!');
-      }).catch(err => {
-        toast('❌ Firebase Submission Error: ' + err.message);
-      });
+      fetch('api.php?action=submit_uid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegram_id: tgUser.id,
+          username: tgUser.username,
+          first_name: tgUser.first_name,
+          photo_url: tgUser.photo_url || "",
+          uid: uidVal
+        })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          toast('✅ UID Submitted for Admin Approval!');
+          checkUserStatus();
+        } else {
+          toast('❌ Error: ' + res.error);
+        }
+      })
+      .catch(err => toast('❌ Submission failed: ' + err.message));
     });
 
-    // Re-Submit UID Action
-    $('reSubmitBtn').addEventListener('click', () => {
-      switchPageView('startView');
-    });
+    $('reSubmitBtn').addEventListener('click', () => switchPageView('startView'));
 
-    // Start Listening on page load
-    listenToUserStatus();
-
-    // ============================================================
-    // ADMIN PANEL & APPROVAL LOGIC
-    // ============================================================
-    $('adminTriggerBtn').addEventListener('click', () => {
-      const pass = prompt("Enter Admin Passcode:");
-      if (pass === "admin123" || pass === "admin") {
-        switchPageView('adminView');
-        loadAdminData();
-      } else if (pass) {
-        toast('❌ Incorrect Admin Passcode!');
-      }
-    });
-
-    $('closeAdminBtn').addEventListener('click', () => {
-      listenToUserStatus();
-    });
-
-    // Admin Tab Navigation
-    document.querySelectorAll('.adminTabBtn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.adminTabBtn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const tabId = btn.dataset.tab;
-        document.querySelectorAll('.adminTabContent').forEach(c => c.style.display = 'none');
-        $(tabId).style.display = 'block';
-      });
-    });
-
-    function loadAdminData() {
-      db.ref('users').on('value', snapshot => {
-        const usersObj = snapshot.val() || {};
-        renderPendingUsers(usersObj);
-        renderAllUsers(usersObj);
-      });
-    }
-
-    function renderPendingUsers(usersObj) {
-      const pendingList = $('pendingUsersList');
-      const pendingUsers = Object.values(usersObj).filter(u => u.status === 'pending');
-
-      if (pendingUsers.length === 0) {
-        pendingList.innerHTML = '<p style="font-family:var(--mono);font-size:.75rem;color:var(--text-muted);text-align:center;padding:20px;">No pending registration requests.</p>';
-        return;
-      }
-
-      pendingList.innerHTML = pendingUsers.map(u => `
-        <div class="userRow">
-          <div class="uMeta">
-            <h4>${u.first_name} (@${u.username})</h4>
-            <p>TG ID: <code>${u.telegram_id}</code> | UID: <b style="color:var(--accent-cyan);">${u.uid}</b></p>
-          </div>
-          <div class="uActions">
-            <button class="btnApprove" onclick="updateUserStatus('${u.telegram_id}', 'approved')">✅ Approve</button>
-            <button class="btnReject" onclick="updateUserStatus('${u.telegram_id}', 'rejected')">❌ Reject</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderAllUsers(usersObj) {
-      const allList = $('allUsersList');
-      const users = Object.values(usersObj);
-
-      if (users.length === 0) {
-        allList.innerHTML = '<p style="font-family:var(--mono);font-size:.75rem;color:var(--text-muted);text-align:center;padding:20px;">No user records found.</p>';
-        return;
-      }
-
-      allList.innerHTML = users.map(u => `
-        <div class="userRow">
-          <div class="uMeta">
-            <h4>${u.first_name} (@${u.username})</h4>
-            <p>ID: ${u.telegram_id} | UID: ${u.uid} | Status: <b style="color:${u.status==='approved'?'var(--accent-green)':u.status==='rejected'?'var(--accent-red)':'var(--accent-orange)'}">${u.status.toUpperCase()}</b></p>
-          </div>
-          <div class="uActions">
-            ${u.status !== 'approved' ? `<button class="btnApprove" onclick="updateUserStatus('${u.telegram_id}', 'approved')">Approve</button>` : ''}
-            ${u.status !== 'rejected' ? `<button class="btnReject" onclick="updateUserStatus('${u.telegram_id}', 'rejected')">Reject</button>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    window.updateUserStatus = function(telegramId, newStatus) {
-      db.ref('users/' + telegramId + '/status').set(newStatus).then(() => {
-        toast(`User status updated to ${newStatus}`);
-      });
-    };
-
-    // Save Admin Settings
-    $('saveSettingsBtn').addEventListener('click', () => {
-      const payload = {
-        app_name: $('settingAppName').value.trim(),
-        logo_url: $('settingLogoUrl').value.trim(),
-        register_link: $('settingRegisterLink').value.trim(),
-        welcome_message: $('settingWelcomeMsg').value.trim(),
-        tg_owner_link: $('settingTgOwnerLink').value.trim()
-      };
-
-      db.ref('settings').update(payload).then(() => {
-        toast('✅ Settings saved & synced live!');
-      }).catch(err => {
-        toast('❌ Error saving settings: ' + err.message);
-      });
-    });
+    // Start Polling
+    fetchSystemSettings();
+    checkUserStatus();
+    setInterval(checkUserStatus, 3000);
+    setInterval(fetchSystemSettings, 10000);
 
     // ============================================================
     // WINGO 1M VAULT PREDICTION ENGINE (PURE RANDOM + SKIP)
@@ -1023,7 +821,6 @@
       }
     }
 
-    // UI DASHBOARD FUNCTIONS
     function countdown() { const s = new Date().getSeconds(); return 60 - s; }
     
     function toast(msg) {
