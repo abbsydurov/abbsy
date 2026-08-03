@@ -21,7 +21,7 @@ $tgOwnerLink = $initialSettings['tg_owner_link'] ?? 'https://t.me/abbsydurov';
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title><?php echo htmlspecialchars($appName); ?> - Wingo 1M Cyber Vault</title>
+  <title><?php echo htmlspecialchars($appName); ?> - Cyber Vault</title>
   
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -30,325 +30,604 @@ $tgOwnerLink = $initialSettings['tg_owner_link'] ?? 'https://t.me/abbsydurov';
   <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
+  <!-- Luxury Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --wp--preset--aspect-ratio--square: 1;
-      --wp--preset--aspect-ratio--4-3: 4 / 3;
-      --wp--preset--aspect-ratio--3-4: 3 / 4;
-      --wp--preset--aspect-ratio--3-2: 3 / 2;
-      --wp--preset--aspect-ratio--2-3: 2 / 3;
-      --wp--preset--aspect-ratio--16-9: 16 / 9;
-      --wp--preset--aspect-ratio--9-16: 9 / 16;
-      --wp--preset--color--black: #000000;
-      --wp--preset--color--cyan-bluish-gray: #abb8c3;
-      --wp--preset--color--white: #ffffff;
-      --wp--preset--color--pale-pink: #f78da7;
-      --wp--preset--color--vivid-red: #cf2e2e;
-      --wp--preset--color--luminous-vivid-orange: #ff6900;
-      --wp--preset--color--luminous-vivid-amber: #fcb900;
-      --wp--preset--color--light-green-cyan: #7bdcb5;
-      --wp--preset--color--vivid-green-cyan: #00d084;
-      --wp--preset--color--pale-cyan-blue: #8ed1fc;
-      --wp--preset--color--vivid-cyan-blue: #0693e3;
-      --wp--preset--color--vivid-purple: #9b51e0;
-      --wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg, rgb(6, 147, 227) 0%, rgb(155, 81, 224) 100%);
-      --wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg, rgb(122, 220, 180) 0%, rgb(0, 208, 130) 100%);
-      --wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg, rgb(252, 185, 0) 0%, rgb(255, 105, 0) 100%);
-      --wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg, rgb(255, 105, 0) 0%, rgb(207, 46, 46) 100%);
-      --wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg, rgb(238, 238, 238) 0%, rgb(169, 184, 195) 100%);
-      --wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg, rgb(74, 234, 220) 0%, rgb(151, 120, 209) 20%, rgb(207, 42, 186) 40%, rgb(238, 44, 130) 60%, rgb(251, 105, 98) 80%, rgb(254, 248, 76) 100%);
-      --wp--preset--gradient--blush-light-purple: linear-gradient(135deg, rgb(255, 206, 236) 0%, rgb(152, 150, 240) 100%);
-      --wp--preset--gradient--blush-bordeaux: linear-gradient(135deg, rgb(254, 205, 165) 0%, rgb(254, 45, 45) 50%, rgb(107, 0, 62) 100%);
-      --wp--preset--gradient--luminous-dusk: linear-gradient(135deg, rgb(255, 203, 112) 0%, rgb(199, 81, 192) 50%, rgb(65, 88, 208) 100%);
-      --wp--preset--gradient--pale-ocean: linear-gradient(135deg, rgb(255, 245, 203) 0%, rgb(182, 227, 212) 50%, rgb(51, 167, 181) 100%);
-      --wp--preset--gradient--electric-grass: linear-gradient(135deg, rgb(202, 248, 128) 0%, rgb(113, 206, 126) 100%);
-      --wp--preset--gradient--midnight: linear-gradient(135deg, rgb(2, 3, 129) 0%, rgb(40, 116, 252) 100%);
-      --wp--preset--font-size--small: 13px;
-      --wp--preset--font-size--normal: 16px;
-      --wp--preset--font-size--medium: 20px;
-      --wp--preset--font-size--large: 36px;
-      --wp--preset--font-size--x-large: 42px;
-      --wp--preset--font-size--huge: 42px;
-      --wp--preset--spacing--20: 0.44rem;
-      --wp--preset--spacing--30: 0.67rem;
-      --wp--preset--spacing--40: 1rem;
-      --wp--preset--spacing--50: 1.5rem;
-      --wp--preset--spacing--60: 2.25rem;
-      --wp--preset--spacing--70: 3.38rem;
-      --wp--preset--spacing--80: 5.06rem;
-      --wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);
-      --wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);
-      --wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);
-      --wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);
-      --wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);
-
-      --bg-dark: #080c14;
-      --panel-dark: #0f172a;
-      --panel-card: #1e293b;
-      --border-line: rgba(255, 255, 255, 0.12);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent-cyan: #0693e3;
-      --accent-purple: #9b51e0;
-      --accent-green: #00d084;
-      --accent-orange: #ff6900;
-      --accent-red: #cf2e2e;
-
-      --void:#010402;--black:#030806;--deep:#07100c;--panel:#091711;--panel2:#0d2218;
-      --acid:#b6ff00;--neon:#00ff88;--cyan:#00eaff;--blue:#1086ff;--gold:#ffd166;--red:#ff3157;
-      --text:#ecfff6;--muted:#79a991;--dim:#456b59;--line:rgba(0,255,136,.22);--line2:rgba(182,255,0,.34);
-      --shadow:0 22px 70px rgba(0,0,0,.68),0 0 38px rgba(0,255,136,.10);--inset:inset 0 0 34px rgba(0,255,136,.045);
-      --mono:"Courier New",ui-monospace,Menlo,Consolas,monospace;--sans:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
-      --r-xl:30px;--r-lg:22px;--r-md:16px;--r-sm:11px;
+      --bg-dark: #070706;
+      --panel-dark: #12100c;
+      --panel-card: #1a1712;
+      --border-line: rgba(229, 193, 88, 0.35);
+      --border-gold-glow: rgba(229, 193, 88, 0.65);
+      --gold-primary: #ffd700;
+      --gold-secondary: #e5c158;
+      --gold-muted: #b89635;
+      --text-main: #fcfaf2;
+      --text-muted: #a69a80;
+      --accent-green: #00e676;
+      --accent-red: #ff3366;
+      --accent-cyan: #00eaff;
+      
+      --gradient-gold: linear-gradient(135deg, #ffd700 0%, #e5c158 50%, #b89635 100%);
+      --gradient-gold-dark: linear-gradient(180deg, rgba(229, 193, 88, 0.22) 0%, rgba(18, 16, 12, 0.95) 100%);
+      
+      --font-serif: 'Cinzel', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-sans: 'Inter', system-ui, sans-serif;
     }
 
     ::selection {
-      background: #F0D200;
+      background: #ffd700;
       color: #000;
-      text-shadow: none;
     }
 
-    *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%;background:var(--bg-dark);font-family:var(--sans);color:var(--text);overflow-x:hidden}
-    body{
-      display:flex;
-      justify-content:center;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg-dark);
+      font-family: var(--font-sans);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
       background: var(--bg-dark);
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(6, 147, 227, 0.18), transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(155, 81, 224, 0.18), transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(0, 208, 132, 0.08), transparent 50%);
+        radial-gradient(circle at 50% 15%, rgba(229, 193, 88, 0.15), transparent 55%),
+        radial-gradient(circle at 10% 90%, rgba(255, 215, 0, 0.08), transparent 45%);
     }
-    body::before{content:"";position:fixed;inset:0;pointer-events:none;background:
-      linear-gradient(rgba(0,255,136,.034) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.034) 1px,transparent 1px);
-      background-size:32px 32px,32px 32px;mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.54))}
 
-    .app{width:100%;max-width:500px;min-height:100dvh;position:relative;background:linear-gradient(180deg,rgba(15,23,42,.96),rgba(8,12,20,.99));border-left:1px solid var(--border-line);border-right:1px solid var(--border-line);box-shadow:var(--wp--preset--shadow--deep);display:flex;flex-direction:column}
-    .app::before{content:"01 10 11 00 10 01 11 00\A PRIVATE WINGO CORE ACTIVE\A HASH BUS :: MATRIX ONLINE\A 001011 110010 011001";white-space:pre;position:absolute;left:14px;right:14px;top:105px;height:140px;font-family:var(--mono);font-size:.62rem;line-height:1.65;color:rgba(0,234,255,.08);letter-spacing:2px;overflow:hidden;pointer-events:none;animation:matrixDrift 12s linear infinite}@keyframes matrixDrift{50%{transform:translateY(18px);opacity:.65}}
-    
-    /* Scroll Container */
-    .scroll{flex:1;overflow-y:auto;padding:18px 18px 110px;position:relative;z-index:1;-webkit-overflow-scrolling:touch}.scroll::-webkit-scrollbar{width:0}
-    .pageView{display:none;animation:viewIn .32s cubic-bezier(.22,.8,.24,1) both}.pageView.active{display:block}@keyframes viewIn{from{opacity:0;transform:translateY(14px) scale(.99)}to{opacity:1;transform:none}}
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(rgba(229, 193, 88, 0.03) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(229, 193, 88, 0.03) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
+    }
 
-    /* Global Header Bar */
-    .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-    .brand{display:flex;gap:12px;align-items:center}
-    .sigil{width:64px;height:64px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);border:1px solid var(--line2);display:grid;place-items:center;position:relative;box-shadow:0 0 22px rgba(6,147,227,.3)}
-    .sigil::before{content:"";position:absolute;inset:4px;clip-path:inherit;background:linear-gradient(180deg,#102417,#030806);border:1px solid rgba(0,255,136,.22)}
-    .sigil img{position:relative;z-index:3;width:46px;height:46px;border-radius:16px;object-fit:cover;border:1px solid rgba(182,255,0,.35);box-shadow:0 0 18px rgba(182,255,0,.22)}
-    .brand h1{font-size:1.36rem;font-weight:1000;letter-spacing:.5px;line-height:1;background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);-webkit-background-clip:text;color:transparent;text-shadow:0 0 22px rgba(6,147,227,.2)}
-    .brand p{font-family:var(--mono);font-size:.62rem;color:var(--text-muted);margin-top:5px;letter-spacing:.4px}
-    .live{font-family:var(--mono);font-size:.60rem;font-weight:900;color:#dffff3;border:1px solid var(--border-line);border-radius:999px;padding:7px 9px;background:rgba(0,208,132,.08);box-shadow:var(--inset);white-space:nowrap}
-    .live i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent-green);box-shadow:0 0 12px var(--accent-green);margin-right:6px;animation:pulse .9s infinite alternate}@keyframes pulse{to{opacity:.42;transform:scale(.75)}}
+    .app {
+      width: 100%;
+      max-width: 500px;
+      min-height: 100dvh;
+      position: relative;
+      background: linear-gradient(180deg, rgba(18, 16, 12, 0.98), rgba(7, 7, 6, 0.99));
+      border-left: 1px solid rgba(229, 193, 88, 0.25);
+      border-right: 1px solid rgba(229, 193, 88, 0.25);
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(229, 193, 88, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
 
-    /* Card styling */
-    .card{background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(8,12,20,.98));border:1px solid var(--border-line);border-radius:var(--r-lg);box-shadow:var(--wp--preset--shadow--deep);position:relative;overflow:hidden;backdrop-filter:blur(16px);margin-bottom:14px}
-    .card::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(6,147,227,.08),rgba(255,255,255,.045),transparent);transform:translateX(-145%);animation:sweep 5.8s ease-in-out infinite;pointer-events:none;z-index:1}@keyframes sweep{55%,100%{transform:translateX(145%)}}
-    .label{font-family:var(--mono);font-size:.63rem;color:var(--text-muted);font-weight:900;letter-spacing:1px;text-transform:uppercase;position:relative;z-index:2}
+    .scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 18px 110px;
+      position: relative;
+      z-index: 1;
+      -webkit-overflow-scrolling: touch;
+    }
+    .scroll::-webkit-scrollbar { width: 0; }
 
-    /* Premium Ribbon */
-    .premiumRibbon{margin:-2px 0 14px;padding:10px 12px;border-radius:16px;border:1px solid var(--border-line);background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 4px 20px rgba(6,147,227,.3);position:relative;overflow:hidden}
-    .premiumRibbon span{position:relative;z-index:2;font-family:var(--mono);font-size:.58rem;font-weight:900;color:#fff;letter-spacing:.5px}
-    .premiumRibbon b{color:#F0D200;text-shadow:0 0 12px rgba(240,210,0,.55)}
+    .pageView {
+      display: none;
+      animation: viewIn 0.35s cubic-bezier(0.22, 0.8, 0.24, 1) both;
+    }
+    .pageView.active { display: block; }
+    @keyframes viewIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.99); }
+      to { opacity: 1; transform: none; }
+    }
 
-    /* Registration Page Styles */
-    .tgProfileCard{padding:18px;display:flex;align-items:center;gap:15px;background:linear-gradient(135deg,rgba(30,41,59,.95),rgba(15,23,42,.98));border:1px solid var(--border-line)}
-    .tgAvatar{width:68px;height:68px;border-radius:50%;object-fit:cover;border:2px solid var(--accent-cyan);box-shadow:0 0 22px rgba(6,147,227,.35)}
-    .tgAvatarFallback{width:68px;height:68px;border-radius:50%;background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);display:grid;place-items:center;font-family:var(--mono);font-size:1.8rem;font-weight:900;color:#fff;box-shadow:0 0 22px rgba(6,147,227,.35)}
-    .tgDetails h2{font-size:1.25rem;font-weight:900;color:#fff;text-shadow:0 0 14px rgba(6,147,227,.30)}
-    .tgDetails p{font-family:var(--mono);font-size:.65rem;color:var(--text-muted);margin-top:3px}
-    .tgBadge{display:inline-block;font-family:var(--mono);font-size:.55rem;font-weight:900;color:var(--accent-cyan);background:rgba(6,147,227,.12);border:1px solid rgba(6,147,227,.30);border-radius:999px;padding:3px 8px;margin-top:6px}
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(229, 193, 88, 0.2);
+    }
 
-    /* Lottie Animation Container */
-    .lottieBox{width:100%;height:190px;display:flex;align-items:center;justify-content:center;margin:10px 0;position:relative}
-    .lottieBox dotlottie-player, .lottieBox lottie-player{width:180px;height:180px}
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
 
-    /* Register Button */
-    .registerGlowBtn{width:100%;border:0;border-radius:var(--r-md);padding:16px;background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);color:#fff;font-family:var(--mono);font-size:.95rem;font-weight:1000;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 0 35px rgba(6,147,227,.38);transition:.25s ease;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px}
-    .registerGlowBtn:hover{transform:translateY(-2px);box-shadow:0 0 45px rgba(6,147,227,.55)}
+    .brandLogoWrap {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      padding: 2px;
+      background: var(--gradient-gold);
+      box-shadow: 0 0 20px rgba(229, 193, 88, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-    /* UID Submit Form */
-    .uidCard{padding:20px;text-align:center;border-color:rgba(6,147,227,.30)}
-    .uidCard h3{font-size:1.15rem;font-weight:900;color:var(--accent-cyan);margin-bottom:6px}
-    .uidCard p{font-family:var(--mono);font-size:.65rem;color:var(--text-muted);margin-bottom:16px}
-    .uidInputGroup{display:flex;flex-direction:column;gap:12px}
-    .uidInput{width:100%;padding:14px 16px;border-radius:14px;background:rgba(0,0,0,.6);border:1.5px solid var(--border-line);color:#fff;font-family:var(--mono);font-size:1rem;font-weight:900;text-align:center;outline:none;transition:.2s}
-    .uidInput:focus{border-color:var(--accent-cyan);box-shadow:0 0 20px rgba(6,147,227,.25)}
-    .submitUidBtn{width:100%;border:0;border-radius:14px;padding:14px;background:var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan);color:#000;font-family:var(--mono);font-size:.85rem;font-weight:900;letter-spacing:.8px;cursor:pointer;box-shadow:0 0 25px rgba(0,208,132,.30);transition:.2s}
-    .submitUidBtn:hover{filter:brightness(1.15)}
+    .brandLogo {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #070706;
+    }
 
-    /* Pending Approval Page */
-    .pendingCard{padding:30px 20px;text-align:center;border-color:rgba(252,185,0,.35)}
-    .pendingCard h2{font-size:1.35rem;font-weight:900;color:var(--accent-orange);margin-top:12px}
-    .pendingCard p{font-family:var(--mono);font-size:.70rem;color:var(--text-muted);margin:10px 0 20px;line-height:1.5}
-    .pendingInfoGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
-    .pendingBox{background:rgba(0,0,0,.4);border:1px solid var(--border-line);border-radius:12px;padding:10px}
-    .pendingBox .lbl{font-family:var(--mono);font-size:.58rem;color:var(--text-muted)}
-    .pendingBox .val{font-family:var(--mono);font-size:.9rem;font-weight:900;color:#fff;margin-top:4px}
+    .brandText h1 {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      line-height: 1.1;
+      background: var(--gradient-gold);
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 18px rgba(229, 193, 88, 0.3);
+    }
 
-    /* Rejected / Access Denied */
-    .rejectedCard{padding:30px 20px;text-align:center;border-color:rgba(207,46,46,.40)}
-    .rejectedCard h2{font-size:1.4rem;font-weight:900;color:var(--accent-red);margin-top:12px}
-    .rejectedCard p{font-family:var(--mono);font-size:.70rem;color:var(--text-muted);margin:10px 0 20px;line-height:1.5}
+    .brandText p {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--gold-muted);
+      margin-top: 4px;
+      letter-spacing: 1px;
+    }
 
-    /* Dashboard / Unlocked Vault */
-    .tracker{display:grid;grid-template-columns:1.22fr .78fr;gap:13px;margin-bottom:14px}
-    .periodCard{padding:15px}
-    .period{font-family:var(--mono);font-size:1.02rem;font-weight:900;margin-top:8px;color:#f7fff9;word-break:break-all;position:relative;z-index:2}
-    .timerCard{min-height:86px;display:grid;place-items:center}
-    .ring{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent-cyan) var(--deg),rgba(6,147,227,.1) 0);box-shadow:0 0 26px rgba(6,147,227,.2)}
-    .ringInner{width:55px;height:55px;border-radius:50%;display:grid;place-items:center;background:#080c14;border:1px solid var(--border-line);font-family:var(--mono);font-weight:900;color:#fff}
+    .liveBadge {
+      font-family: var(--font-mono);
+      font-size: 0.60rem;
+      font-weight: 800;
+      color: #fff;
+      border: 1px solid rgba(229, 193, 88, 0.4);
+      border-radius: 999px;
+      padding: 6px 12px;
+      background: rgba(229, 193, 88, 0.1);
+      box-shadow: 0 0 15px rgba(229, 193, 88, 0.15);
+      white-space: nowrap;
+    }
 
-    .hero{min-height:340px;padding:18px;text-align:center;border-radius:var(--r-xl);margin-bottom:14px;border-color:rgba(6,147,227,.25)}
-    .vault{height:92px;width:92px;margin:0 auto 13px;position:relative;z-index:2}
-    .vault::before{content:"";position:absolute;inset:0;clip-path:polygon(50% 0,95% 25%,95% 75%,50% 100%,5% 75%,5% 25%);background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);box-shadow:0 0 40px rgba(6,147,227,.3)}
-    .vault::after{content:"1M";position:absolute;inset:17px;clip-path:polygon(50% 0,95% 25%,95% 75%,50% 100%,5% 75%,5% 25%);display:grid;place-items:center;background:linear-gradient(180deg,#0f172a,#080c14);color:var(--accent-cyan);font-family:var(--mono);font-size:1.25rem;font-weight:900;line-height:58px;animation:corePulse 1.5s infinite alternate}@keyframes corePulse{to{filter:brightness(1.25)}}
-    
-    .state{font-family:var(--mono);font-size:.66rem;color:var(--accent-cyan);font-weight:900;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:9px;position:relative;z-index:2}
-    .hud{width:min(100%,300px);height:92px;margin:0 auto;display:flex;align-items:center;justify-content:center;padding:0 18px;border-radius:14px;background:rgba(0,0,0,.4);border:2px solid rgba(6,147,227,.30);box-shadow:0 0 35px rgba(6,147,227,.13);position:relative;z-index:2;overflow:hidden;clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%);text-align:center}
-    .hud::before{content:"";position:absolute;left:-45%;top:0;width:28%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.24),transparent);transform:skewX(-18deg);animation:flash 4.2s infinite}@keyframes flash{0%,55%{left:-45%}80%,100%{left:130%}}
-    
-    .outcome{font-size:4rem;line-height:1;font-weight:1000;letter-spacing:4px;text-transform:uppercase;text-align:center;width:100%;display:flex;align-items:center;justify-content:center;margin:0 auto}
-    .outcome.big{color:var(--accent-orange);text-shadow:0 0 18px rgba(255,105,0,.46)}
-    .outcome.small{color:var(--accent-cyan);text-shadow:0 0 20px rgba(6,147,227,.54)}
-    .outcome.skip{color:var(--text-muted);font-size:3rem;letter-spacing:10px}
+    .liveBadge i {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold-primary);
+      box-shadow: 0 0 10px var(--gold-primary);
+      margin-right: 6px;
+      animation: pulse 1s infinite alternate;
+    }
+    @keyframes pulse { to { opacity: 0.4; transform: scale(0.75); } }
 
-    /* Custom Ball Image Display HUD */
-    .signalRow{display:flex;align-items:center;justify-content:center;gap:12px;margin:16px 0 11px;position:relative;z-index:2}
-    .pill{font-family:var(--mono);font-size:.66rem;font-weight:900;color:#dffff3;border:1px solid var(--border-line);border-radius:999px;padding:7px 10px;background:rgba(6,147,227,.08)}
-    .ballImgWrap{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,rgba(6,147,227,.3),transparent 70%);position:relative;filter:drop-shadow(0 0 14px rgba(6,147,227,.45))}
-    .ballImgWrap img{width:52px;height:52px;object-fit:contain;border-radius:50%;animation:ballBounce .6s cubic-bezier(.17,.89,.32,1.28)}@keyframes ballBounce{0%{transform:scale(.3) rotate(-90deg)}100%{transform:scale(1) rotate(0deg)}}
-    .verify{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:.64rem;font-weight:900;color:#e9fff6;border:1px solid var(--border-line);background:rgba(0,208,132,.08);border-radius:999px;padding:7px 12px;position:relative;z-index:2}
+    .card {
+      background: linear-gradient(180deg, rgba(26, 23, 18, 0.95), rgba(14, 12, 9, 0.98));
+      border: 1.5px solid var(--border-line);
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 215, 0, 0.12);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
 
-    /* Prediction Loader */
-    .loader{display:none;position:relative;z-index:3;text-align:center;padding:26px 0}
-    .loaderSpin{width:96px;height:96px;border-radius:50%;margin:0 auto 18px;position:relative;background:conic-gradient(from 0deg,transparent 0 18%,var(--accent-cyan) 24%,transparent 32%,transparent 48%,var(--accent-purple) 56%,transparent 66%,transparent);animation:spin 1.05s linear infinite}
-    .loaderSpin::before{content:"";position:absolute;inset:10px;border-radius:50%;background:#0f172a;border:1px solid var(--border-line)}
-    .loaderSpin::after{content:"1M";position:absolute;inset:27px;border-radius:50%;display:grid;place-items:center;background:rgba(6,147,227,.1);border:1px dashed rgba(6,147,227,.45);color:var(--accent-cyan);font-family:var(--mono);font-weight:900;animation:spin 2.4s linear reverse infinite}
-    .loaderText{font-family:var(--mono);font-weight:900;color:#fff;letter-spacing:.8px}
-    .loaderText::after{content:"";display:inline-block;width:22px;text-align:left;animation:dots 1.2s steps(4,end) infinite}@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%,100%{content:"..."}}
-    .reveal{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center}.hidden{display:none!important}
+    .tgProfileCard {
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
 
-    .engineBox{display:none;padding:12px;margin-bottom:14px}
-    .engineGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
-    .engineBtn{border:1px solid var(--border-line);background:rgba(255,255,255,.04);color:var(--text-muted);border-radius:6px;padding:9px 4px;font-family:var(--mono);font-size:.56rem;font-weight:900;cursor:pointer}
-    .engineBtn.active{background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);color:#fff;border-color:rgba(255,255,255,.22)}
+    .tgAvatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--gold-secondary);
+      box-shadow: 0 0 20px rgba(229, 193, 88, 0.35);
+    }
 
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:15px}
-    .stat{padding:13px 8px;text-align:center}
-    .stat .v{font-family:var(--mono);font-size:1.13rem;font-weight:900;color:#fff;margin-top:4px}
-    .stat .v.green{color:var(--accent-green)}
-    .stat .v.gold{color:var(--accent-orange)}
+    .tgAvatarFallback {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--gradient-gold);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #070706;
+      box-shadow: 0 0 20px rgba(229, 193, 88, 0.35);
+    }
 
-    .systemPanel{padding:14px;margin-bottom:18px;border-color:rgba(6,147,227,.24)}
-    .sysHead{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2;margin-bottom:11px}
-    .sysTitle{font-family:var(--mono);font-size:.72rem;font-weight:900;color:var(--accent-cyan);letter-spacing:1px}
-    .sysBadge{font-family:var(--mono);font-size:.58rem;font-weight:900;color:#fff;background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);border-radius:999px;padding:5px 9px}
-    .sysGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;position:relative;z-index:2}
-    .sysItem{border:1px solid var(--border-line);border-radius:13px;background:rgba(0,0,0,.3);padding:10px}
-    .sysLbl{font-family:var(--mono);font-size:.55rem;color:var(--text-muted);font-weight:900;text-transform:uppercase;letter-spacing:.6px}
-    .sysVal{font-family:var(--mono);font-size:.78rem;color:#ecfff6;font-weight:900;margin-top:4px}
-    .sysVal.acid{color:var(--accent-green)}
+    .tgDetails h2 {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+    }
 
-    .codeCol{position:absolute;top:18px;bottom:18px;width:42px;z-index:2;overflow:hidden;pointer-events:none;font-family:var(--mono);font-size:.54rem;line-height:1.7;color:rgba(6,147,227,.18);text-align:center;letter-spacing:1px}
-    .codeCol.left{left:8px}.codeCol.right{right:8px;color:rgba(155,81,224,.16)}.codeCol div{animation:codeFall 5s linear infinite}.codeCol.right div{animation-duration:6.5s;animation-direction:reverse}@keyframes codeFall{to{transform:translateY(-55%)}}
-    .vault .orbit{position:absolute;border-radius:50%;border:1px solid rgba(6,147,227,.25);z-index:3;pointer-events:none}.vault .o1{inset:-8px;border-top-color:var(--accent-cyan);animation:spin 7s linear infinite}.vault .o2{inset:-15px;border-right-color:var(--accent-purple);border-style:dashed;animation:spin 11s linear reverse infinite;opacity:.75}.vault .o3{inset:7px;border-left-color:var(--accent-green);animation:spin 5s linear infinite;opacity:.65}@keyframes spin{to{transform:rotate(360deg)}}
+    .tgDetails p {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
 
-    /* History View & Ball Log Formatting */
-    .historyTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    .title{font-size:1.42rem;font-weight:1000;color:#fff}
-    .clear{border:1px solid rgba(207,46,46,.36);background:rgba(207,46,46,.07);color:#ff9aaa;border-radius:999px;padding:7px 11px;font-family:var(--mono);font-size:.62rem;font-weight:900;cursor:pointer}
-    .list{display:flex;flex-direction:column;gap:12px}
-    .hist{padding:13px 14px;display:flex;align-items:center;justify-content:space-between}
-    .hperiod{font-family:var(--mono);font-size:.94rem;font-weight:900}
-    .hpred{font-family:var(--mono);font-size:.68rem;color:#dffff3;border:1px solid var(--border-line);background:rgba(6,147,227,.08);padding:3px 8px;border-radius:7px;margin-top:5px;width:max-content}
-    .htime{font-family:var(--mono);font-size:.58rem;color:var(--text-muted);margin-top:4px}
-    .hright{display:flex;align-items:center;gap:11px}
-    .actualLabel{font-family:var(--mono);font-size:.54rem;color:var(--text-muted);text-align:center;margin-bottom:2px}
-    .ballIconMini{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(6,147,227,.4))}
-    .status{font-family:var(--mono);font-size:.68rem;font-weight:900;border-radius:999px;padding:5px 10px;min-width:76px;text-align:center}
-    .pending{color:var(--accent-orange);background:rgba(255,105,0,.10);border:1px solid rgba(255,105,0,.32)}
-    .win{color:var(--accent-green);background:rgba(0,208,132,.10);border:1px solid rgba(0,208,132,.32)}
-    .loss{color:#ff9aaa;background:rgba(207,46,46,.10);border:1px solid rgba(207,46,46,.32)}
-    .empty{padding:70px 20px;text-align:center;color:var(--text-muted);font-family:var(--mono)}
+    .tgBadge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      font-weight: 800;
+      color: var(--gold-primary);
+      background: rgba(229, 193, 88, 0.12);
+      border: 1px solid rgba(229, 193, 88, 0.35);
+      border-radius: 999px;
+      padding: 3px 10px;
+      margin-top: 6px;
+    }
 
-    /* Help Tab */
-    .help{padding:26px 18px;text-align:center}
-    .helpIcon{width:88px;height:88px;clip-path:polygon(50% 0,95% 25%,95% 75%,50% 100%,5% 75%,5% 25%);display:grid;place-items:center;margin:8px auto 18px;font-size:2.4rem;background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);box-shadow:0 0 32px rgba(6,147,227,.2)}
-    .help h2{font-size:1.4rem;margin-bottom:8px}.help p{color:var(--text-muted);line-height:1.5;margin-bottom:17px}
-    .tgOwnerBtn{width:100%;border:0;border-radius:16px;padding:14px;background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);color:#fff;font-family:var(--mono);font-weight:900;box-shadow:0 0 26px rgba(6,147,227,.3);cursor:pointer}
+    .lottieBox {
+      width: 100%;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 12px 0;
+    }
+    .lottieBox dotlottie-player, .lottieBox lottie-player {
+      width: 170px;
+      height: 170px;
+    }
 
-    /* Bottom Navigation Bar */
-    .nav{height:76px;position:fixed;left:50%;bottom:12px;transform:translateX(-50%);width:min(100% - 24px, 476px);z-index:90;padding:6px;border-radius:20px;background:rgba(15,23,42,.96);border:1px solid var(--border-line);box-shadow:var(--wp--preset--shadow--deep);backdrop-filter:blur(18px);display:flex;align-items:center;justify-around:space-around}
-    .navBtn{flex:1;height:58px;border:1px solid transparent;background:transparent;color:var(--text-muted);font-family:var(--mono);font-size:.64rem;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:14px;cursor:pointer;transition:.2s}
-    .navBtn .ico{font-size:1.18rem}
-    .navBtn.active{background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);color:#fff;box-shadow:0 6px 20px rgba(6,147,227,.3)}
+    .registerGlowBtn {
+      width: 100%;
+      border: 1.5px solid var(--gold-secondary);
+      border-radius: 16px;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(229, 193, 88, 0.25), rgba(18, 16, 12, 0.95));
+      color: var(--gold-primary);
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(229, 193, 88, 0.25);
+      transition: 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .registerGlowBtn:hover {
+      background: var(--gradient-gold);
+      color: #070706;
+      box-shadow: 0 0 35px rgba(229, 193, 88, 0.5);
+    }
 
-    /* Toast Notification */
-    .toast{position:fixed;left:50%;bottom:98px;z-index:150;transform:translateX(-50%) translateY(16px);opacity:0;background:rgba(15,23,42,.96);border:1px solid var(--accent-cyan);color:#e9fff6;font-family:var(--mono);font-size:.72rem;border-radius:999px;padding:9px 16px;box-shadow:0 0 25px rgba(6,147,227,.3);transition:.25s;white-space:nowrap;pointer-events:none}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .uidCard {
+      padding: 22px 18px;
+      text-align: center;
+    }
 
-    /* Result Verification Modal */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:200;padding:22px;background:rgba(0,0,0,.85);backdrop-filter:blur(10px)}.modal.show{display:flex}
-    .pop{width:100%;max-width:390px;border-radius:24px;padding:20px;text-align:center;background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(8,12,20,.99));border:1px solid var(--border-line);box-shadow:var(--wp--preset--shadow--deep)}
-    .pop.winGlow{border-color:rgba(0,208,132,.45);box-shadow:0 24px 80px rgba(0,0,0,.74),0 0 44px rgba(0,208,132,.18)}
-    .popTitle{font-size:2rem;font-weight:1000;margin-bottom:5px}.popTitle.win{color:var(--accent-green)}.popTitle.loss{color:var(--accent-red)}
-    .popSub{font-family:var(--mono);font-size:.7rem;color:var(--text-muted);font-weight:900;margin-bottom:14px}
-    .popGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .popCell{border:1px solid var(--border-line);border-radius:14px;background:rgba(255,255,255,.04);padding:10px}
-    .popCell.full{grid-column:1/-1}
-    .pl{font-family:var(--mono);font-size:.58rem;color:var(--text-muted);font-weight:900}
-    .pv{font-family:var(--mono);font-size:1rem;font-weight:900;margin-top:4px}
-    .msg{font-size:1.2rem;font-weight:900;margin:14px 0}
-    .ok{width:100%;border:0;border-radius:15px;padding:13px;background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);color:#fff;font-family:var(--mono);font-weight:900;cursor:pointer}
+    .uidCard h3 {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--gold-primary);
+      margin-bottom: 6px;
+    }
+
+    .uidCard p {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .uidInput {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1.5px solid var(--border-line);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      margin-bottom: 12px;
+      transition: 0.2s;
+    }
+
+    .uidInput:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 20px rgba(229, 193, 88, 0.3);
+    }
+
+    .submitUidBtn {
+      width: 100%;
+      border: 0;
+      border-radius: 14px;
+      padding: 14px;
+      background: var(--gradient-gold);
+      color: #070706;
+      font-family: var(--font-serif);
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(229, 193, 88, 0.35);
+      transition: 0.2s;
+    }
+    .submitUidBtn:hover { filter: brightness(1.15); }
+
+    .pendingCard {
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    .pendingCard h2 {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--gold-primary);
+      margin-top: 12px;
+    }
+
+    .pendingCard p {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin: 12px 0 20px;
+      line-height: 1.5;
+    }
+
+    .pendingInfoGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .pendingBox {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-line);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .pendingBox .lbl { font-family: var(--font-mono); font-size: 0.58rem; color: var(--gold-muted); }
+    .pendingBox .val { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 800; color: #fff; margin-top: 4px; }
+
+    .rejectedCard {
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .rejectedCard h2 { font-family: var(--font-serif); font-size: 1.3rem; color: var(--accent-red); margin-top: 10px; }
+    .rejectedCard p { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin: 10px 0 20px; }
+
+    .modeTabGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .modeTabBtn {
+      padding: 14px 10px;
+      border-radius: 16px;
+      border: 1.5px solid var(--border-line);
+      background: rgba(0, 0, 0, 0.6);
+      color: var(--text-muted);
+      font-family: var(--font-serif);
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .modeTabBtn.active {
+      background: linear-gradient(135deg, rgba(229, 193, 88, 0.25), rgba(18, 16, 12, 0.95));
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+      box-shadow: 0 0 20px rgba(229, 193, 88, 0.3);
+    }
+
+    .periodCardGold {
+      padding: 20px;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(26, 23, 18, 0.9), rgba(12, 10, 8, 0.95));
+      border: 1.5px solid var(--border-line);
+      margin-bottom: 18px;
+    }
+
+    .periodCardGold .pTitle {
+      font-family: var(--font-serif);
+      font-size: 0.68rem;
+      color: var(--gold-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .periodCardGold .pNumber {
+      font-family: var(--font-serif);
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--gold-primary);
+      margin-top: 6px;
+      text-shadow: 0 0 25px rgba(229, 193, 88, 0.5);
+      letter-spacing: 2px;
+    }
+
+    .predictionVaultHero {
+      padding: 26px 18px;
+      text-align: center;
+      border: 1.5px solid var(--border-line);
+      background: linear-gradient(180deg, rgba(30, 26, 20, 0.95), rgba(14, 12, 9, 0.98));
+      position: relative;
+    }
+
+    .vaultBadgeHeader {
+      display: inline-block;
+      font-family: var(--font-serif);
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--gold-primary);
+      border: 1px solid var(--border-line);
+      border-radius: 999px;
+      padding: 4px 14px;
+      background: rgba(229, 193, 88, 0.1);
+      margin-bottom: 20px;
+      letter-spacing: 1.5px;
+    }
+
+    .ballGlowDisplay {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle, rgba(229, 193, 88, 0.4) 0%, rgba(229, 193, 88, 0.1) 50%, transparent 70%);
+      box-shadow: 0 0 45px rgba(229, 193, 88, 0.35);
+      position: relative;
+    }
+
+    .ballGlowDisplay img {
+      width: 110px;
+      height: 110px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 15px rgba(0,0,0,0.6));
+      animation: ballPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes ballPop { 0% { transform: scale(0.4) rotate(-90deg); } 100% { transform: scale(1) rotate(0deg); } }
+
+    .bigSmallBanner {
+      font-family: var(--font-serif);
+      font-size: 3.2rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      margin: 10px 0;
+      text-transform: uppercase;
+    }
+    .bigSmallBanner.big { color: #ff9900; text-shadow: 0 0 25px rgba(255, 153, 0, 0.6); }
+    .bigSmallBanner.small { color: var(--accent-cyan); text-shadow: 0 0 25px rgba(0, 234, 255, 0.6); }
+
+    .lockedTextFooter {
+      font-family: var(--font-serif);
+      font-size: 0.68rem;
+      color: var(--gold-secondary);
+      letter-spacing: 1.5px;
+      margin-top: 10px;
+    }
+
+    .nav {
+      height: 72px;
+      position: fixed;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      width: min(100% - 24px, 476px);
+      z-index: 90;
+      padding: 6px;
+      border-radius: 20px;
+      background: rgba(18, 16, 12, 0.96);
+      border: 1.5px solid var(--border-line);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+      backdrop-filter: blur(18px);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+
+    .navBtn {
+      flex: 1;
+      height: 54px;
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-serif);
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .navBtn.active {
+      background: var(--gradient-gold);
+      color: #070706;
+      box-shadow: 0 4px 15px rgba(229, 193, 88, 0.35);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 95px;
+      z-index: 150;
+      transform: translateX(-50%) translateY(16px);
+      opacity: 0;
+      background: rgba(18, 16, 12, 0.98);
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-primary);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      border-radius: 999px;
+      padding: 9px 18px;
+      box-shadow: 0 0 25px rgba(229, 193, 88, 0.3);
+      transition: 0.25s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
   <main class="app">
-    <!-- Toast Notification -->
     <div id="toast" class="toast">Signal locked</div>
 
-    <!-- Result Verification Modal -->
-    <div id="modal" class="modal">
-      <div id="pop" class="pop">
-        <div id="popTitle" class="popTitle win">WIN ✓</div>
-        <div class="popSub">PERIOD RESULT VERIFIED</div>
-        <div class="popGrid">
-          <div class="popCell full"><div class="pl">Period</div><div id="popPeriod" class="pv">----</div></div>
-          <div class="popCell"><div class="pl">Predicted</div><div id="popPred" class="pv">--</div></div>
-          <div class="popCell"><div class="pl">Actual Result</div><div id="popActual" class="pv">--</div></div>
-        </div>
-        <div id="popMsg" class="msg">WIN</div>
-        <button id="okBtn" class="ok">CONTINUE</button>
-      </div>
-    </div>
-
-    <!-- Main Scroll View Area -->
     <section class="scroll">
       
       <!-- PAGE 1: START / REGISTRATION LANDING VIEW -->
       <div id="startView" class="pageView active">
         <div class="top">
           <div class="brand">
-            <div class="sigil">
-              <img id="appLogoImg1" src="<?php echo htmlspecialchars($logoUrl); ?>" alt="PW" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-              <span style="display:none">PW</span>
+            <div class="brandLogoWrap">
+              <img id="appLogoImg1" class="brandLogo" src="<?php echo htmlspecialchars($logoUrl); ?>" alt="Logo">
             </div>
-            <div>
+            <div class="brandText">
               <h1 id="appNameText1"><?php echo htmlspecialchars($appName); ?></h1>
-              <p>WINGO 1 MINUTE // CYBER VAULT</p>
+              <p>WINGO 1 MINUTE // SECRET BOT</p>
             </div>
           </div>
-          <div class="live"><i></i>ONLINE</div>
+          <div class="liveBadge"><i></i>ONLINE</div>
         </div>
 
-        <div class="premiumRibbon">
-          <span><b>PRO</b> ACCESS FEED</span>
-          <span>ENCRYPTED GATEWAY</span>
-          <span>1M VAULT</span>
-        </div>
-
-        <!-- Telegram User Profile Card -->
         <div class="card tgProfileCard">
           <img id="tgUserPhoto" class="tgAvatar" src="<?php echo htmlspecialchars($logoUrl); ?>" onerror="this.style.display='none';document.getElementById('tgUserPhotoFallback').style.display='grid'">
           <div id="tgUserPhotoFallback" class="tgAvatarFallback" style="display:none">TG</div>
@@ -360,45 +639,40 @@ $tgOwnerLink = $initialSettings['tg_owner_link'] ?? 'https://t.me/abbsydurov';
           </div>
         </div>
 
-        <!-- Lottie High-Tech Animation -->
         <div class="lottieBox">
-          <dotlottie-player src="https://assets2.lottiefiles.com/packages/lf20_m64s7pcz.json" background="transparent" speed="1" style="width:180px;height:180px;" loop autoplay></dotlottie-player>
+          <dotlottie-player src="https://assets3.lottiefiles.com/packages/lf20_ucbywqin.json" background="transparent" speed="1" style="width:170px;height:170px;" loop autoplay></dotlottie-player>
         </div>
 
-        <!-- External Register Link Button -->
         <button id="registerLinkBtn" class="registerGlowBtn">
           ⚡ REGISTER NOW / OPEN GAME 🚀
         </button>
 
-        <!-- UID Submission Form -->
         <div class="card uidCard">
           <h3>SUBMIT YOUR GAME UID</h3>
           <p>Register on the game link above, then enter your Game UID below to request server access activation.</p>
-          <div class="uidInputGroup">
-            <input type="text" id="uidInput" class="uidInput" placeholder="Enter Your Game UID (e.g. 123456)" autocomplete="off">
-            <button id="submitUidBtn" class="submitUidBtn">SUBMIT UID FOR APPROVAL</button>
-          </div>
+          <input type="text" id="uidInput" class="uidInput" placeholder="Enter Your Game UID (e.g. 123456)" autocomplete="off">
+          <button id="submitUidBtn" class="submitUidBtn">SUBMIT UID FOR APPROVAL</button>
         </div>
       </div>
 
-      <!-- PAGE 2: PENDING APPROVAL VIEW -->
+      <!-- PAGE 2: PENDING APPROVAL VIEW (NATIVE CONTAINER, NO IFRAMES) -->
       <div id="pendingView" class="pageView">
         <div class="top">
           <div class="brand">
-            <div class="sigil">
-              <img id="appLogoImg2" src="<?php echo htmlspecialchars($logoUrl); ?>" alt="PW">
+            <div class="brandLogoWrap">
+              <img id="appLogoImg2" class="brandLogo" src="<?php echo htmlspecialchars($logoUrl); ?>" alt="Logo">
             </div>
-            <div>
+            <div class="brandText">
               <h1 id="appNameText2"><?php echo htmlspecialchars($appName); ?></h1>
               <p>STATUS // PENDING APPROVAL</p>
             </div>
           </div>
-          <div class="live"><i></i>CHECKING</div>
+          <div class="liveBadge"><i></i>CHECKING</div>
         </div>
 
         <div class="card pendingCard">
           <div class="lottieBox" style="height:140px;">
-            <dotlottie-player src="https://assets10.lottiefiles.com/packages/lf20_usmfx6bp.json" background="transparent" speed="1" style="width:140px;height:140px;" loop autoplay></dotlottie-player>
+            <dotlottie-player src="https://assets9.lottiefiles.com/packages/lf20_cbr483v4.json" background="transparent" speed="1" style="width:140px;height:140px;" loop autoplay></dotlottie-player>
           </div>
           <h2>WAITING FOR ADMIN APPROVAL</h2>
           <p>Your registration request has been submitted to the Admin team. Once approved, your Wingo 1M Vault will unlock automatically!</p>
@@ -422,142 +696,85 @@ $tgOwnerLink = $initialSettings['tg_owner_link'] ?? 'https://t.me/abbsydurov';
           <div style="font-size:3rem;margin-bottom:10px;">🚫</div>
           <h2>ACCESS DENIED</h2>
           <p>Your access request was rejected by the admin. Please re-check your Game UID or contact the owner for assistance.</p>
-          <button id="reSubmitBtn" class="submitUidBtn" style="background:var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);color:#fff;margin-top:10px;">
-            RE-SUBMIT GAME UID
-          </button>
+          <button id="reSubmitBtn" class="submitUidBtn">RE-SUBMIT GAME UID</button>
         </div>
       </div>
 
-      <!-- PAGE 4: UNLOCKED WINGO 1M VAULT DASHBOARD -->
+      <!-- PAGE 4: UNLOCKED WINGO 1M VAULT DASHBOARD (OPEN ONLY AFTER APPROVAL) -->
       <div id="dashboardView" class="pageView">
-        <!-- Sub-tabs for Dashboard -->
         <div id="homeSubView" class="subView active">
           <div class="top">
             <div class="brand">
-              <div class="sigil">
-                <img id="appLogoImg3" src="<?php echo htmlspecialchars($logoUrl); ?>" alt="PW">
+              <div class="brandLogoWrap">
+                <img id="appLogoImg3" class="brandLogo" src="<?php echo htmlspecialchars($logoUrl); ?>" alt="Logo">
               </div>
-              <div>
+              <div class="brandText">
                 <h1 id="appNameText3"><?php echo htmlspecialchars($appName); ?></h1>
-                <p>WINGO 1 MINUTE // HACKER CORE</p>
+                <p>SECRET BOT // UNLOCKED CORE</p>
               </div>
             </div>
-            <div class="live"><i></i>ONLINE</div>
+            <div class="liveBadge"><i></i>ONLINE</div>
           </div>
 
-          <div class="premiumRibbon">
-            <span><b>PRO</b> UNLOCKED</span>
-            <span>ENCRYPTED FEED</span>
-            <span>1M VAULT</span>
+          <!-- 2 SECTION PREDICTION TABS -->
+          <div class="modeTabGrid">
+            <button id="tabModeNumber" class="modeTabBtn active">
+              🎯 NUMBER
+            </button>
+            <button id="tabModeBigSmall" class="modeTabBtn">
+              📊 BIG / SMALL
+            </button>
           </div>
 
-          <div class="tracker">
-            <div class="card periodCard">
-              <div class="label">ACTIVE ISSUE</div>
-              <div id="period" class="period">FETCHING...</div>
-            </div>
-            <div class="card timerCard">
-              <div id="ring" class="ring" style="--deg:360deg">
-                <div id="timer" class="ringInner">60s</div>
+          <div class="card periodCardGold">
+            <div class="pTitle">PERIOD NUMBER</div>
+            <div id="periodDisplay" class="pNumber">---</div>
+          </div>
+
+          <div class="card predictionVaultHero">
+            <div id="heroBadgeHeader" class="vaultBadgeHeader">SURESHOT · PERIOD ---</div>
+
+            <!-- SECTION 1: NUMBER PREDICTION VIEW -->
+            <div id="sectionNumberView">
+              <div class="ballGlowDisplay">
+                <img id="predictedBallImg" src="https://i.postimg.cc/2S5RDhH5/ball-7-c8babe29.png" alt="Ball 7">
               </div>
             </div>
-          </div>
 
-          <div class="card hero">
-            <div class="codeCol left"><div>10110<br>PW01<br>01101<br>1M<br>11001<br>VAULT<br>00110<br>10101<br>CORE<br>01011<br>10110<br>PW01</div></div>
-            <div class="codeCol right"><div>HASH<br>00101<br>LOCK<br>11010<br>API<br>01001<br>NODE<br>11100<br>1MIN<br>01101<br>HASH<br>00101</div></div>
-            
-            <div id="loader" class="loader">
-              <div class="loaderSpin"></div>
-              <div class="loaderText glitchText" data-text="DECRYPTING 1M SIGNAL">DECRYPTING 1M SIGNAL</div>
+            <!-- SECTION 2: BIG / SMALL PREDICTION VIEW -->
+            <div id="sectionBigSmallView" style="display:none;">
+              <div id="bigSmallOutcome" class="bigSmallBanner big">BIG</div>
+              <div id="colorPill" style="font-family:var(--font-mono); font-size:0.75rem; color:var(--gold-primary); margin-bottom:10px;">COLOR: GREEN</div>
             </div>
-            
-            <div id="reveal" class="reveal">
-              <div class="vault">
-                <span class="orbit o1"></span><span class="orbit o2"></span><span class="orbit o3"></span>
-              </div>
-              <div class="state">SYSTEM SIGNAL LOCKED</div>
-              <div class="hud">
-                <div id="outcome" class="outcome big">BIG</div>
-              </div>
-              
-              <!-- Custom Ball Image Display Row -->
-              <div class="signalRow">
-                <span class="pill">NUMBER</span>
-                <div class="ballImgWrap">
-                  <img id="predictedBallImg" src="https://i.postimg.cc/2S5RDhH5/ball-7-c8babe29.png" alt="Ball 7">
-                </div>
-                <span id="color" class="pill">PRED BIG</span>
-              </div>
 
-              <div class="verify">
-                <span>✓</span><span id="reason">PATTERN ENGINE ACTIVE</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="card engineBox">
-            <div class="label">SERVER ENGINE</div>
-            <div class="engineGrid">
-              <button class="engineBtn active" data-server="1">PATTERN</button>
-              <button class="engineBtn" data-server="2">ML</button>
-              <button class="engineBtn" data-server="3">HYBRID</button>
-              <button class="engineBtn" data-server="4">RNG</button>
-            </div>
-          </div>
-
-          <div class="stats">
-            <div class="card stat"><div class="label">Accuracy</div><div id="accuracy" class="v green">0%</div></div>
-            <div class="card stat"><div class="label">Streak</div><div id="streak" class="v gold">0</div></div>
-            <div class="card stat"><div class="label">Logs</div><div id="logs" class="v">0</div></div>
-          </div>
-
-          <div class="card systemPanel">
-            <div class="sysHead"><div class="sysTitle">SYSTEM CORE</div><div class="sysBadge">1M NODE</div></div>
-            <div class="sysGrid">
-              <div class="sysItem"><div class="sysLbl">Feed Source</div><div class="sysVal">WinGo 1M API</div></div>
-              <div class="sysItem"><div class="sysLbl">Engine</div><div class="sysVal acid">RANDOM + SKIP</div></div>
-              <div class="sysItem"><div class="sysLbl">Signal Type</div><div class="sysVal">BIG / SMALL / SKIP</div></div>
-              <div class="sysItem"><div class="sysLbl">Status</div><div class="sysVal acid">Encrypted Live</div></div>
+            <div class="lockedTextFooter">
+              LOCKED PREDICTION · PLAY WITH CONFIDENCE
             </div>
           </div>
         </div>
 
-        <!-- History Sub View -->
-        <div id="historySubView" class="subView" style="display:none">
-          <div class="historyTop">
-            <div class="title">Prediction Logs</div>
-            <button id="clear" class="clear">WIPE CACHE</button>
-          </div>
-          <div id="list" class="list"></div>
-        </div>
-
-        <!-- Help Sub View -->
         <div id="helpSubView" class="subView" style="display:none">
-          <div class="card help">
-            <div class="helpIcon">✈️</div>
-            <h2>Contact Owner Support</h2>
-            <p id="welcomeMsgText"><?php echo htmlspecialchars($welcomeMsg); ?></p>
-            <button id="tgOwnerLinkBtn" class="tgOwnerBtn">OPEN t.me/abbsydurov SUPPORT</button>
+          <div class="card" style="padding:24px; text-align:center;">
+            <div style="font-size:2.5rem; margin-bottom:10px;">✈️</div>
+            <h2 style="font-family:var(--font-serif); color:var(--gold-primary); margin-bottom:8px;">Contact Owner Support</h2>
+            <p id="welcomeMsgText" style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin-bottom:16px;">
+              <?php echo htmlspecialchars($welcomeMsg); ?>
+            </p>
+            <button id="tgOwnerLinkBtn" class="submitUidBtn">OPEN t.me/abbsydurov SUPPORT</button>
           </div>
         </div>
       </div>
 
     </section>
 
-    <!-- Bottom Navigation Bar (Shown on Unlocked Dashboard View) -->
     <nav id="bottomNav" class="nav" style="display:none">
-      <button class="navBtn active" data-dashview="homeSubView"><span class="ico">⌬</span><span>HOME</span></button>
-      <button class="navBtn" data-dashview="historySubView"><span class="ico">▤</span><span>HISTORY</span></button>
-      <button class="navBtn" data-dashview="helpSubView"><span class="ico">✦</span><span>HELP</span></button>
+      <button class="navBtn active" data-dashview="homeSubView"><span>⌬ HOME</span></button>
+      <button class="navBtn" data-dashview="helpSubView"><span>✦ HELP</span></button>
     </nav>
   </main>
 
   <script>
-    // STRICT USER APPROVAL FLAG (NO PREDICTIONS UNTIL APPROVED)
     let isUserApproved = false;
-
-    // Initial PHP System Settings
     let appSettings = {
       app_name: "<?php echo addslashes($appName); ?>",
       logo_url: "<?php echo addslashes($logoUrl); ?>",
@@ -566,7 +783,6 @@ $tgOwnerLink = $initialSettings['tg_owner_link'] ?? 'https://t.me/abbsydurov';
       tg_owner_link: "<?php echo addslashes($tgOwnerLink); ?>"
     };
 
-    // WINGO BALL IMAGE MAPPING (0 - 9)
     const BALL_IMAGES = {
       0: 'https://i.postimg.cc/Wzrp0gRV/ball-0-053d2b99.png',
       1: 'https://i.postimg.cc/Qt7ZzDfk/ball-1-12ea01b7.png',
@@ -582,14 +798,7 @@ $tgOwnerLink = $initialSettings['tg_owner_link'] ?? 'https://t.me/abbsydurov';
 
     const $ = id => document.getElementById(id);
 
-    // TELEGRAM USER DATA DETECTION
-    let tgUser = {
-      id: "99887766",
-      first_name: "Demo User",
-      username: "demouser",
-      photo_url: ""
-    };
-
+    let tgUser = { id: "99887766", first_name: "Demo User", username: "demouser", photo_url: "" };
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
@@ -611,94 +820,41 @@ $tgOwnerLink = $initialSettings['tg_owner_link'] ?? 'https://t.me/abbsydurov';
       $('tgUserPhotoFallback').style.display = 'none';
     }
 
-    // Fetch dynamic settings from api.php
-    function fetchSystemSettings() {
-      fetch('api.php?action=get_settings')
-        .then(r => r.json())
-        .then(data => {
-          if (data.success && data.settings) {
-            appSettings = { ...appSettings, ...data.settings };
-            applySettingsToUI();
-          }
-        }).catch(err => console.error(err));
-    }
-
-    function applySettingsToUI() {
-      if (appSettings.app_name) {
-        $('appNameText1').textContent = appSettings.app_name;
-        $('appNameText2').textContent = appSettings.app_name;
-        $('appNameText3').textContent = appSettings.app_name;
-      }
-      if (appSettings.logo_url) {
-        $('appLogoImg1').src = appSettings.logo_url;
-        $('appLogoImg2').src = appSettings.logo_url;
-        $('appLogoImg3').src = appSettings.logo_url;
-      }
-      if (appSettings.welcome_message) {
-        $('welcomeMsgText').textContent = appSettings.welcome_message;
-      }
-    }
-
-    $('registerLinkBtn').addEventListener('click', () => {
-      window.open(appSettings.register_link || "https://t.me/abbsydurov", '_blank');
-    });
-
-    $('tgOwnerLinkBtn').addEventListener('click', () => {
-      window.open(appSettings.tg_owner_link || "https://t.me/abbsydurov", '_blank');
-    });
-
-    // PAGE SWITCHING
     function switchPageView(viewId) {
       document.querySelectorAll('.pageView').forEach(el => el.classList.remove('active'));
       const target = $(viewId);
       if (target) target.classList.add('active');
-      
-      if (viewId === 'dashboardView') {
-        $('bottomNav').style.display = 'flex';
-      } else {
-        $('bottomNav').style.display = 'none';
-      }
+      $('bottomNav').style.display = (viewId === 'dashboardView') ? 'flex' : 'none';
     }
 
-    // USER STATUS POLLING VIA PHP REST API
     function checkUserStatus() {
       fetch(`api.php?action=check_status&telegram_id=${encodeURIComponent(tgUser.id)}`)
         .then(r => r.json())
         .then(res => {
           if (!res.registered || res.status === 'not_registered') {
             isUserApproved = false;
-            $('modal').classList.remove('show');
             switchPageView('startView');
           } else if (res.status === 'pending') {
             isUserApproved = false;
-            $('modal').classList.remove('show');
             $('pendingUidVal').textContent = res.uid || '------';
             $('pendingTgIdVal').textContent = tgUser.id;
             switchPageView('pendingView');
           } else if (res.status === 'rejected') {
             isUserApproved = false;
-            $('modal').classList.remove('show');
             switchPageView('rejectedView');
           } else if (res.status === 'approved') {
             if (!isUserApproved) {
               isUserApproved = true;
               switchPageView('dashboardView');
-              toast('🎉 Access Granted! Wingo 1M Vault Unlocked');
               fetchData();
             }
           }
-        })
-        .catch(err => console.error('Status check error:', err));
+        }).catch(err => console.error(err));
     }
 
-    // Submit UID Action
     $('submitUidBtn').addEventListener('click', () => {
       const uidVal = $('uidInput').value.trim();
-      if (!uidVal) {
-        toast('⚠️ Please enter a valid Game UID!');
-        return;
-      }
-
+      if (!uidVal) return;
       fetch('api.php?action=submit_uid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -709,445 +865,80 @@ $tgOwnerLink = $initialSettings['tg_owner_link'] ?? 'https://t.me/abbsydurov';
           photo_url: tgUser.photo_url || "",
           uid: uidVal
         })
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) {
-          toast('✅ UID Submitted for Admin Approval!');
-          checkUserStatus();
-        } else {
-          toast('❌ Error: ' + res.error);
-        }
-      })
-      .catch(err => toast('❌ Submission failed: ' + err.message));
+      }).then(r => r.json()).then(res => {
+        if (res.success) checkUserStatus();
+      });
     });
 
     $('reSubmitBtn').addEventListener('click', () => switchPageView('startView'));
 
-    // Start Polling
-    fetchSystemSettings();
     checkUserStatus();
     setInterval(checkUserStatus, 3000);
-    setInterval(fetchSystemSettings, 10000);
 
-    // ============================================================
-    // WINGO 1M VAULT PREDICTION ENGINE (PURE RANDOM + SKIP)
-    // ============================================================
+    $('tabModeNumber').addEventListener('click', () => {
+      $('tabModeNumber').classList.add('active');
+      $('tabModeBigSmall').classList.remove('active');
+      $('sectionNumberView').style.display = 'block';
+      $('sectionBigSmallView').style.display = 'none';
+    });
+
+    $('tabModeBigSmall').addEventListener('click', () => {
+      $('tabModeBigSmall').classList.add('active');
+      $('tabModeNumber').classList.remove('active');
+      $('sectionNumberView').style.display = 'none';
+      $('sectionBigSmallView').style.display = 'block';
+    });
+
     const API_URL = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';
-    const STORE_KEY = 'bn_server_wingo_1m_vault_logs_v3';
-    const state = {
-      currentPeriod: 'WAITING',
-      historyData: [],
-      logs: [],
-      prediction: null,
-      lastApiFetch: 0,
-      selectedServer: 1,
-      winStreak: 0,
-      totalPredictions: 0,
-      correctPredictions: 0
-    };
-
-    let skipCounter = 0;
-    let lastWasLoss = false;
-    let totalSkips = 0;
-
-    function shouldSkipPrediction() {
-      if (lastWasLoss) {
-        lastWasLoss = false;
-        skipCounter = 0;
-        totalSkips++;
-        return true;
-      }
-      skipCounter++;
-      if (skipCounter >= 8) {
-        skipCounter = 0;
-        if (Math.random() < 0.3) {
-          totalSkips++;
-          return true;
-        }
-      }
-      return false;
-    }
+    let state = { currentPeriod: 'WAITING' };
 
     function generateRandomPrediction(period) {
       const periodStr = String(period);
       let hash = 0;
-      for (let i = 0; i < periodStr.length; i++) {
-        hash = ((hash << 5) - hash) + periodStr.charCodeAt(i);
-        hash = hash & hash;
-      }
+      for (let i = 0; i < periodStr.length; i++) hash = ((hash << 5) - hash) + periodStr.charCodeAt(i);
       hash = Math.abs(hash);
-      
-      const x1 = Math.sin(hash * 9301 + 49297) * 49297;
-      const random1 = Math.abs(x1 - Math.floor(x1));
-      const threshold = 0.4 + (random1 * 0.2);
-      
-      const x2 = Math.sin((hash + 999) * 9301 + 49297) * 49297;
-      const random2 = Math.abs(x2 - Math.floor(x2));
-      
-      const prediction = random2 < threshold ? 'BIG' : 'SMALL';
-      const number = Math.floor(random2 * 10);
-      
+      const r1 = Math.abs(Math.sin(hash * 9301 + 49297) * 49297 % 1);
+      const number = Math.floor(r1 * 10);
+      const pred = number >= 5 ? 'BIG' : 'SMALL';
       let color = 'GREEN';
       if (number === 0) color = 'RED + VIOLET';
       else if (number === 5) color = 'GREEN + VIOLET';
       else if (number % 2 === 0) color = 'RED';
-      else color = 'GREEN';
-      
-      return {
-        pred: prediction,
-        number: number,
-        color: color,
-        threshold: threshold,
-        randomValue: random2,
-        reason: 'PATTERN ENGINE ACTIVE'
-      };
-    }
-
-    function masterPredict() {
-      const period = state.currentPeriod || Date.now().toString();
-      if (state.historyData && state.historyData.length > 0) {
-        const firstPeriod = state.historyData[0]?.period || period;
-        return generateRandomPrediction(firstPeriod);
-      }
-      return generateRandomPrediction(period);
-    }
-
-    function provideFeedback(period, predicted, actual) {
-      if (actual === 'LOSS' || actual === 'loss' || actual === 'LOSS ✕') {
-        lastWasLoss = true;
-      } else {
-        lastWasLoss = false;
-      }
-    }
-
-    function countdown() { const s = new Date().getSeconds(); return 60 - s; }
-    
-    function toast(msg) {
-      const t = $('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      clearTimeout(window.__t);
-      window.__t = setTimeout(() => t.classList.remove('show'), 2200);
-    }
-
-    function resultFromNumber(period, number) {
-      let color = 'RED';
-      if (number === 0) color = 'RED + VIOLET';
-      else if (number === 5) color = 'GREEN + VIOLET';
-      else if (number % 2 !== 0) color = 'GREEN';
-      return { period: String(period), number, bigSmall: number >= 5 ? 'BIG' : 'SMALL', color };
-    }
-
-    function loadLogs() {
-      try {
-        state.logs = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
-      } catch(e) {
-        state.logs = [];
-      }
-      updateStatsFromLogs();
-    }
-
-    function saveLogs() {
-      localStorage.setItem(STORE_KEY, JSON.stringify(state.logs.slice(0, 100)));
-    }
-
-    function updateStatsFromLogs() {
-      const done = state.logs.filter(x => x.status === 'WIN' || x.status === 'LOSS');
-      state.totalPredictions = done.length;
-      state.correctPredictions = done.filter(x => x.status === 'WIN').length;
-      let st = 0;
-      for (const x of state.logs) {
-        if (x.status === 'WIN') st++;
-        else if (x.status === 'LOSS') break;
-      }
-      state.winStreak = st;
-    }
-
-    function addLog(p) {
-      if (!isUserApproved) return;
-      if (p.bigSmall === 'SKIP') return;
-      const old = state.logs.find(x => String(x.period) === String(p.period));
-      if (old) { state.prediction = old; return; }
-      state.logs.unshift(p);
-      state.logs = state.logs.slice(0, 100);
-      saveLogs();
-      updateStatsFromLogs();
-    }
-
-    async function fetchTimeout(url, timeout = 5500) {
-      const c = new AbortController();
-      const t = setTimeout(() => c.abort(), timeout);
-      try { return await fetch(url, { cache: 'no-store', signal: c.signal }); }
-      finally { clearTimeout(t); }
-    }
-
-    function listFrom(json) {
-      if (Array.isArray(json)) return json;
-      if (json && Array.isArray(json.data)) return json.data;
-      if (json && json.data && Array.isArray(json.data.list)) return json.data.list;
-      if (json && json.data && Array.isArray(json.data.data)) return json.data.data;
-      if (json && Array.isArray(json.list)) return json.list;
-      if (json && Array.isArray(json.rows)) return json.rows;
-      return [];
-    }
-
-    async function fetchJson() {
-      if (!isUserApproved) return null;
-      const direct = API_URL + '?ts=' + Date.now();
-      const urls = [direct, `https://corsproxy.io/?url=${encodeURIComponent(direct)}`];
-      for (const u of urls) {
-        try {
-          const r = await fetchTimeout(u);
-          if (!r.ok) continue;
-          const j = await r.json();
-          const l = listFrom(j);
-          if (l.length) return l;
-        } catch(e) {}
-      }
-      return null;
-    }
-
-    function parseItem(item) {
-      const period = String(item.issueNumber || item.issue || item.period || item.issue_number || item.id || '');
-      let raw = item.number;
-      if (raw === undefined) raw = item.result;
-      if (raw === undefined) raw = item.digit;
-      if (raw === undefined) raw = item.win_number;
-      const n = parseInt(raw, 10);
-      if (!period || Number.isNaN(n)) return null;
-      return resultFromNumber(period, n);
-    }
-
-    function renderStats() {
-      const acc = state.totalPredictions ? Math.round(state.correctPredictions / state.totalPredictions * 100) : 0;
-      $('accuracy').textContent = acc + '%';
-      $('streak').textContent = state.winStreak;
-      $('logs').textContent = state.logs.length;
+      return { pred, number, color };
     }
 
     function renderPrediction(p) {
       if (!isUserApproved) return;
-      $('period').textContent = p.period;
-      $('outcome').textContent = p.bigSmall;
-      if (p.bigSmall === 'SKIP') {
-        $('outcome').className = 'outcome skip';
-      } else {
-        $('outcome').className = 'outcome ' + (p.bigSmall === 'BIG' ? 'big' : 'small');
-      }
-
-      const ballImgUrl = BALL_IMAGES[p.number] || BALL_IMAGES[7];
-      $('predictedBallImg').src = ballImgUrl;
-      $('predictedBallImg').alt = "Ball " + p.number;
-
-      $('color').textContent = p.color;
-      $('reason').textContent = (p.reason || 'PATTERN ENGINE ACTIVE').slice(0, 44).toUpperCase();
-      renderStats();
-    }
-
-    function renderHistory() {
-      if (!isUserApproved) return;
-      renderStats();
-      const el = $('list');
-      if (!state.logs.length) {
-        el.innerHTML = '<div class="card empty">NO HISTORY YET<br><span style="font-size:.72rem">Waiting for first 1M signal...</span></div>';
-        return;
-      }
-
-      el.innerHTML = state.logs.map(x => {
-        const a = x.actual;
-        let ballElem = `<div style="font-family:var(--mono);color:var(--accent-orange);">?</div>`;
-        if (a && a.number !== undefined) {
-          const ballSrc = BALL_IMAGES[a.number] || BALL_IMAGES[0];
-          ballElem = `<img class="ballIconMini" src="${ballSrc}" alt="Ball ${a.number}">`;
-        }
-
-        const bubble = `<div><div class="actualLabel">RESULT</div>${ballElem}</div>`;
-        return `
-          <div class="card hist">
-            <div>
-              <div class="hperiod">...${String(x.period).slice(-5)}</div>
-              <div class="hpred">PRED: ${x.bigSmall}</div>
-              <div class="htime">${(x.reason || '').slice(0, 32)}</div>
-            </div>
-            <div class="hright">
-              ${bubble}
-              <div class="status ${sClass(x)}">${sText(x)}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function sClass(x) { return x.status === 'WIN' ? 'win' : x.status === 'LOSS' ? 'loss' : 'pending'; }
-    function sText(x) { return x.status === 'WIN' ? 'WIN ✓' : x.status === 'LOSS' ? 'LOSS ✕' : 'PENDING'; }
-
-    function popup(x) {
-      if (!isUserApproved) return;
-      if (!x.actual) return;
-      const won = x.status === 'WIN';
-      $('pop').className = 'pop ' + (won ? 'winGlow' : '');
-      $('popTitle').className = 'popTitle ' + (won ? 'win' : 'loss');
-      $('popTitle').textContent = won ? 'WIN ✓' : 'LOSS ✕';
-      $('popPeriod').textContent = x.period;
-      $('popPred').textContent = x.bigSmall;
-      $('popActual').textContent = x.actual.bigSmall + ' / ' + x.actual.number;
-      $('popMsg').textContent = won ? 'WIN' : 'Better Luck Next Time';
-      $('modal').classList.add('show');
-    }
-
-    function verify(results) {
-      if (!isUserApproved) return;
-      let changed = false, first = null;
-      state.logs.forEach(x => {
-        if (x.status === 'PENDING') {
-          const a = results.find(r => String(r.period) === String(x.period));
-          if (a) {
-            x.actual = a;
-            x.status = x.bigSmall === a.bigSmall ? 'WIN' : 'LOSS';
-            provideFeedback(x.period, x.bigSmall, x.status);
-            changed = true;
-            if (!first) first = x;
-          }
-        }
-      });
-      if (changed) {
-        saveLogs();
-        updateStatsFromLogs();
-        renderHistory();
-        toast('Result verified');
-        popup(first);
-      }
-    }
-
-    function makePrediction(period) {
-      if (!isUserApproved) return;
-
-      const shouldSkip = shouldSkipPrediction();
-      if (shouldSkip) {
-        const skipLog = {
-          period: String(period),
-          bigSmall: 'SKIP',
-          number: '-',
-          color: 'SKIP',
-          reason: 'PREDICTION SKIPPED (RANDOM SKIP)',
-          time: new Date().toLocaleString(),
-          status: 'PENDING',
-          actual: null
-        };
-        state.prediction = skipLog;
-        $('period').textContent = period;
-        $('outcome').textContent = 'SKIP';
-        $('outcome').className = 'outcome skip';
-        $('predictedBallImg').src = BALL_IMAGES[0];
-        $('color').textContent = 'SKIP';
-        $('reason').textContent = 'PREDICTION SKIPPED (RANDOM SKIP)';
-        renderStats();
-        renderHistory();
-        toast('⏭️ Prediction skipped');
-        $('loader').style.display = 'none';
-        $('reveal').classList.remove('hidden');
-        return;
-      }
-
-      $('loader').style.display = 'block';
-      $('reveal').classList.add('hidden');
-      const e = masterPredict();
-      const p = {
-        period: String(period),
-        bigSmall: e.pred,
-        number: e.number || 7,
-        color: e.color || 'GREEN',
-        reason: e.reason || 'ANTILOSS ACTIVE',
-        time: new Date().toLocaleString(),
-        status: 'PENDING',
-        actual: null
-      };
-      state.prediction = p;
-      addLog(p);
-      renderHistory();
-      setTimeout(() => {
-        if (!isUserApproved) return;
-        renderPrediction(state.prediction || p);
-        $('loader').style.display = 'none';
-        $('reveal').classList.remove('hidden');
-        toast('1M signal locked');
-      }, 850);
+      const shortPeriod = String(p.period).slice(-3);
+      $('periodDisplay').textContent = shortPeriod;
+      $('heroBadgeHeader').textContent = `SURESHOT · PERIOD ${shortPeriod}`;
+      $('predictedBallImg').src = BALL_IMAGES[p.number] || BALL_IMAGES[7];
+      $('bigSmallOutcome').textContent = p.pred;
+      $('bigSmallOutcome').className = 'bigSmallBanner ' + p.pred.toLowerCase();
+      $('colorPill').textContent = 'PREDICTED COLOR: ' + p.color;
     }
 
     async function fetchData() {
       if (!isUserApproved) return;
-      const list = await fetchJson();
-      if (!list) return;
-      state.historyData = list.slice(0, 25).map(i => ({
-        period: String(i.issueNumber),
-        number: parseInt(i.number, 10),
-        result: parseInt(i.number, 10) >= 5 ? 'BIG' : 'SMALL'
-      })).filter(x => !Number.isNaN(x.number));
-      
-      const results = list.map(parseItem).filter(Boolean);
-      verify(results);
-      const raw = list[0]?.issueNumber;
-      if (!raw) return;
-      const next = (BigInt(String(raw)) + 1n).toString();
-      if (next !== state.currentPeriod) {
-        state.currentPeriod = next;
-        $('period').textContent = next;
-        makePrediction(next);
-      }
+      try {
+        const r = await fetch(API_URL + '?ts=' + Date.now());
+        const j = await r.json();
+        const list = j?.data?.list || j?.list || [];
+        if (list.length > 0) {
+          const raw = list[0]?.issueNumber;
+          if (raw) {
+            const next = (BigInt(String(raw)) + 1n).toString();
+            if (next !== state.currentPeriod) {
+              state.currentPeriod = next;
+              const res = generateRandomPrediction(next);
+              renderPrediction({ period: next, ...res });
+            }
+          }
+        }
+      } catch(e) {}
     }
 
-    function loop() {
-      if (!isUserApproved) return;
-      const rem = countdown();
-      $('timer').textContent = rem + 's';
-      $('ring').style.setProperty('--deg', (rem / 60 * 360) + 'deg');
-      if (rem <= 10) { $('timer').style.color = 'var(--accent-orange)'; }
-      else { $('timer').style.color = '#fff'; }
-      
-      const s = new Date().getSeconds();
-      if (s === 0 || s === 1 || Date.now() - state.lastApiFetch > 12000) {
-        state.lastApiFetch = Date.now();
-        fetchData();
-      }
-    }
-
-    // Dashboard Sub-View Switcher (Bottom Nav)
-    document.querySelectorAll('.navBtn[data-dashview]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.navBtn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const targetSub = btn.dataset.dashview;
-        document.querySelectorAll('.subView').forEach(sv => sv.style.display = 'none');
-        $(targetSub).style.display = 'block';
-        if (targetSub === 'historySubView' && isUserApproved) fetchData();
-      });
-    });
-
-    document.querySelectorAll('.engineBtn').forEach(b => b.addEventListener('click', () => {
-      state.selectedServer = parseInt(b.dataset.server, 10);
-      document.querySelectorAll('.engineBtn').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      if (state.currentPeriod !== 'WAITING' && isUserApproved) makePrediction(state.currentPeriod);
-      toast('Engine switched');
-    }));
-
-    $('clear').addEventListener('click', () => {
-      state.logs = [];
-      saveLogs();
-      updateStatsFromLogs();
-      renderHistory();
-      toast('History cleared');
-    });
-
-    $('okBtn').addEventListener('click', () => $('modal').classList.remove('show'));
-    $('modal').addEventListener('click', e => {
-      if (e.target.id === 'modal') $('modal').classList.remove('show');
-    });
-
-    // Initialize Dashboard
-    loadLogs();
-    setInterval(loop, 1000);
+    setInterval(() => { if (isUserApproved) fetchData(); }, 5000);
   </script>
 </body>
 </html>
