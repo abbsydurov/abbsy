@@ -1,18 +1,18 @@
+<?php
+// admin.php - PRIVATE WINGO Admin Control Panel (PHP + SQL Backend)
+require_once __DIR__ . '/db.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>PRIVATE WINGO - User Management Admin Panel</title>
+  <title>PRIVATE WINGO - Admin Control Panel</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
-
-  <!-- Firebase 10 Compatibility SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <style>
     :root {
@@ -65,19 +65,7 @@
       --wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);
       --wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);
       --wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);
-      
-      --wp-block-synced-color: #7a00df;
-      --wp-block-synced-color--rgb: 122, 0, 223;
-      --wp-bound-block-color: var(--wp-block-synced-color);
-      --wp-editor-canvas-background: #ddd;
-      --wp-admin-theme-color: #007cba;
-      --wp-admin-theme-color--rgb: 0, 124, 186;
-      --wp-admin-theme-color-darker-10: #006ba1;
-      --wp-admin-theme-color-darker-10--rgb: 0, 107, 160.5;
-      --wp-admin-theme-color-darker-20: #005a87;
-      --wp-admin-theme-color-darker-20--rgb: 0, 90, 135;
-      --wp-admin-border-width-focus: 2px;
-      
+
       --bg-dark: #080c14;
       --panel-dark: #0f172a;
       --panel-card: #1e293b;
@@ -101,63 +89,148 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
     body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--bg-dark);
       background-image: 
         radial-gradient(circle at 15% 15%, rgba(6, 147, 227, 0.15), transparent 40%),
         radial-gradient(circle at 85% 85%, rgba(155, 81, 224, 0.15), transparent 40%);
       color: var(--text-main);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      padding: 2rem 1rem;
     }
 
-    /* Top Navigation Header */
-    .adminNav {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border-line);
-      padding: 1rem 2rem;
+    /* Security Passcode Modal */
+    .lockModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 20, 0.95);
+      backdrop-filter: blur(20px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .lockBox {
+      background: var(--panel-dark);
+      border: 1px solid var(--border-line);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--wp--preset--shadow--deep);
+    }
+
+    .lockIcon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+
+    .lockBox h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .lockBox p {
+      font-size: var(--wp--preset--font-size--small);
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .passInput {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-line);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-bottom: 1.2rem;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .passInput:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 20px rgba(6, 147, 227, 0.3);
+    }
+
+    .unlockBtn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 0;
+      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(6, 147, 227, 0.35);
+      transition: 0.2s;
+    }
+
+    .unlockBtn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    /* Header Bar */
+    header {
+      max-width: 1200px;
+      margin: 0 auto 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: var(--wp--preset--shadow--natural);
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-line);
     }
 
-    .brandSection {
+    .brand {
       display: flex;
       align-items: center;
       gap: 1rem;
     }
 
-    .brandLogo {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      object-fit: cover;
-      border: 2px solid var(--accent-cyan);
-      box-shadow: 0 0 20px rgba(6, 147, 227, 0.4);
+    .brandSigil {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+      box-shadow: 0 0 25px rgba(6, 147, 227, 0.4);
     }
 
     .brandText h1 {
-      font-size: 1.25rem;
-      font-weight: 800;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
       background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
       -webkit-background-clip: text;
       color: transparent;
-      letter-spacing: -0.5px;
     }
 
     .brandText p {
+      font-family: 'JetBrains Mono', monospace;
       font-size: var(--wp--preset--font-size--small);
       color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
     }
 
     .topRightActions {
@@ -207,54 +280,45 @@
       color: #fff;
     }
 
-    /* Layout Main Wrapper */
+    /* Layout Container */
     .container {
-      max-width: 1300px;
-      margin: 2rem auto;
-      padding: 0 1.5rem;
-      width: 100%;
-      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
-    /* Metric Summary Cards */
+    /* Metrics Grid Cards */
     .metricsGrid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.25rem;
+      gap: 1.2rem;
       margin-bottom: 2rem;
     }
 
     .metricCard {
       background: var(--panel-dark);
       border: 1px solid var(--border-line);
-      border-radius: 18px;
+      border-radius: 20px;
       padding: 1.5rem;
       box-shadow: var(--wp--preset--shadow--deep);
       position: relative;
       overflow: hidden;
-      transition: transform 0.25s, border-color 0.25s;
     }
-    .metricCard:hover {
-      transform: translateY(-3px);
-      border-color: rgba(255, 255, 255, 0.25);
-    }
-    .metricCard::before {
+
+    .metricCard::after {
       content: "";
       position: absolute;
       top: 0;
-      left: 0;
       right: 0;
-      height: 4px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%);
+      pointer-events: none;
     }
-    .metricCard.total::before { background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple); }
-    .metricCard.pending::before { background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange); }
-    .metricCard.approved::before { background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan); }
-    .metricCard.rejected::before { background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red); }
 
     .metricLabel {
-      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--wp--preset--font-size--small);
       color: var(--text-muted);
-      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -266,43 +330,43 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Toolbar & Search Filter */
-    .toolbar {
-      background: var(--panel-dark);
-      border: 1px solid var(--border-line);
-      border-radius: 16px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.5rem;
+    .metricVal.blue { color: var(--accent-cyan); }
+    .metricVal.gold { color: var(--accent-orange); }
+    .metricVal.green { color: var(--accent-green); }
+    .metricVal.red { color: var(--accent-red); }
+
+    /* Control Tabs & Search Bar */
+    .panelHeader {
       display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .tabGroup {
       display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 4px;
+      gap: 0.5rem;
+      background: var(--panel-dark);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--border-line);
     }
 
     .tabBtn {
       padding: 10px 18px;
       border-radius: 10px;
-      border: 1px solid transparent;
-      background: rgba(255, 255, 255, 0.05);
+      border: 0;
+      background: transparent;
       color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
+      transition: 0.2s;
     }
-    .tabBtn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
+
     .tabBtn.active {
       background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
       color: #fff;
@@ -311,25 +375,25 @@
 
     .searchBox {
       position: relative;
-      min-width: 260px;
+      min-width: 280px;
     }
 
     .searchInput {
       width: 100%;
-      padding: 10px 16px;
-      padding-left: 40px;
-      border-radius: 10px;
-      background: rgba(0, 0, 0, 0.4);
+      padding: 11px 16px 11px 40px;
+      border-radius: 12px;
+      background: var(--panel-dark);
       border: 1px solid var(--border-line);
       color: #fff;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
       outline: none;
-      transition: 0.2s;
     }
+
     .searchInput:focus {
       border-color: var(--accent-cyan);
-      box-shadow: 0 0 15px rgba(6, 147, 227, 0.25);
     }
+
     .searchIcon {
       position: absolute;
       left: 14px;
@@ -339,17 +403,16 @@
       font-size: 14px;
     }
 
-    /* Table & User List Container */
-    .contentCard {
+    /* Main Data Table */
+    .tableCard {
       background: var(--panel-dark);
       border: 1px solid var(--border-line);
-      border-radius: 20px;
+      border-radius: 24px;
       box-shadow: var(--wp--preset--shadow--deep);
       overflow: hidden;
     }
 
-    .tableResponsive {
-      width: 100%;
+    .tableWrapper {
       overflow-x: auto;
     }
 
@@ -361,24 +424,34 @@
 
     th {
       background: rgba(0, 0, 0, 0.4);
-      padding: 14px 18px;
+      padding: 1rem 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
-      font-weight: 800;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.8px;
+      letter-spacing: 0.5px;
       border-bottom: 1px solid var(--border-line);
     }
 
     td {
-      padding: 16px 18px;
+      padding: 1.1rem 1.2rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       font-size: 14px;
       vertical-align: middle;
     }
 
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
     tr:hover td {
       background: rgba(255, 255, 255, 0.02);
+    }
+
+    .userProfileCell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .userAvatar {
@@ -386,9 +459,10 @@
       height: 42px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid var(--accent-cyan);
+      border: 1.5px solid var(--accent-cyan);
     }
-    .userAvatarFallback {
+
+    .avatarFallback {
       width: 42px;
       height: 42px;
       border-radius: 50%;
@@ -400,199 +474,189 @@
       color: #fff;
     }
 
-    .userInfo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
     .userName {
       font-weight: 700;
       color: #fff;
     }
-    .userSub {
+
+    .userHandle {
+      font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
       color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
     }
 
-    .uidCode {
+    .codeBadge {
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 800;
-      color: #ff6900;
-      background: rgba(255, 105, 0, 0.12);
-      border: 1px solid rgba(255, 105, 0, 0.25);
+      font-size: 13px;
+      font-weight: 700;
       padding: 4px 10px;
-      border-radius: 6px;
-      display: inline-block;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-line);
+      color: var(--accent-cyan);
     }
 
     .statusBadge {
       display: inline-flex;
       align-items: center;
-      padding: 5px 12px;
+      gap: 6px;
+      padding: 4px 12px;
       border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
       font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 800;
       text-transform: uppercase;
     }
+
     .statusBadge.pending {
-      background: rgba(252, 185, 0, 0.15);
-      border: 1px solid rgba(252, 185, 0, 0.35);
+      background: rgba(255, 105, 0, 0.12);
+      border: 1px solid rgba(255, 105, 0, 0.35);
       color: var(--accent-orange);
     }
+
     .statusBadge.approved {
-      background: rgba(0, 208, 132, 0.15);
+      background: rgba(0, 208, 132, 0.12);
       border: 1px solid rgba(0, 208, 132, 0.35);
       color: var(--accent-green);
     }
+
     .statusBadge.rejected {
-      background: rgba(207, 46, 46, 0.15);
+      background: rgba(207, 46, 46, 0.12);
       border: 1px solid rgba(207, 46, 46, 0.35);
-      color: var(--accent-red);
+      color: #ff8585;
     }
 
-    /* Action Buttons */
-    .actionBtns {
+    .actionGroup {
       display: flex;
+      align-items: center;
       gap: 8px;
     }
 
     .btnApprove {
-      background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan);
-      border: 0;
-      color: #000;
-      font-weight: 800;
-      padding: 8px 14px;
+      padding: 7px 14px;
       border-radius: 8px;
+      border: 0;
+      background: var(--accent-green);
+      color: #000;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
+      font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 208, 132, 0.25);
       transition: 0.2s;
     }
-    .btnApprove:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+    .btnApprove:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 0 12px rgba(0, 208, 132, 0.4);
+    }
 
     .btnReject {
-      background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red);
-      border: 0;
-      color: #fff;
-      font-weight: 800;
-      padding: 8px 14px;
+      padding: 7px 14px;
       border-radius: 8px;
+      border: 0;
+      background: rgba(207, 46, 46, 0.2);
+      border: 1px solid rgba(207, 46, 46, 0.4);
+      color: #ff8585;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
+      font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(207, 46, 46, 0.25);
       transition: 0.2s;
     }
-    .btnReject:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+    .btnReject:hover {
+      background: var(--accent-red);
+      color: #fff;
+    }
 
     .btnDelete {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border-line);
-      color: var(--text-muted);
-      padding: 8px 10px;
+      padding: 7px 10px;
       border-radius: 8px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .btnDelete:hover { background: var(--accent-red); color: #fff; }
-
-    /* Form Settings */
-    .settingsForm {
-      padding: 2rem;
-      max-width: 700px;
-    }
-
-    .formGroup {
-      margin-bottom: 1.5rem;
-    }
-    .formGroup label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
-    .formGroup input {
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: 10px;
-      background: rgba(0, 0, 0, 0.4);
       border: 1px solid var(--border-line);
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-    }
-    .formGroup input:focus {
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 15px rgba(6, 147, 227, 0.25);
-    }
-
-    .btnSaveSettings {
-      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
-      border: 0;
-      color: #fff;
-      padding: 14px 28px;
-      border-radius: 12px;
-      font-weight: 800;
-      font-size: 14px;
+      background: rgba(0,0,0,0.3);
+      color: var(--text-muted);
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(6, 147, 227, 0.3);
+      font-size: 13px;
     }
 
-    /* Modal Passcode Login */
-    .passModal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(12px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 1rem;
+    .btnDelete:hover {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
     }
 
-    .passBox {
+    /* System Settings Editor Form */
+    .settingsCard {
       background: var(--panel-dark);
       border: 1px solid var(--border-line);
       border-radius: 24px;
-      padding: 2.5rem;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
+      padding: 2rem;
       box-shadow: var(--wp--preset--shadow--deep);
     }
 
-    .passBox h2 {
-      font-size: 1.6rem;
+    .settingsCard h3 {
+      font-size: 1.3rem;
       font-weight: 800;
-      margin-bottom: 8px;
-      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
-    .passBox p {
-      font-size: 13px;
-      color: var(--text-muted);
       margin-bottom: 1.5rem;
+      color: var(--accent-cyan);
     }
 
-    .passInput {
-      width: 100%;
-      padding: 14px;
+    .formGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .formGroup {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .formGroup.full {
+      grid-column: 1 / -1;
+    }
+
+    .formGroup label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .formGroup input, .formGroup textarea {
+      padding: 12px 16px;
       border-radius: 12px;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.4);
       border: 1px solid var(--border-line);
       color: #fff;
-      font-size: 1.2rem;
-      text-align: center;
-      letter-spacing: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
       outline: none;
-      margin-bottom: 1.25rem;
+    }
+
+    .formGroup input:focus, .formGroup textarea:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .saveBtn {
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: 0;
+      background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 1rem;
+      box-shadow: 0 4px 20px rgba(6, 147, 227, 0.4);
+      transition: 0.2s;
+    }
+
+    .saveBtn:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
     }
 
     /* Toast Notification */
@@ -600,19 +664,20 @@
       position: fixed;
       bottom: 2rem;
       right: 2rem;
-      background: rgba(15, 23, 42, 0.95);
+      background: var(--panel-dark);
       border: 1px solid var(--accent-cyan);
       color: #fff;
       padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 700;
+      border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       transform: translateY(100px);
       opacity: 0;
       transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 1000;
+      z-index: 10000;
     }
+
     .toast.show {
       transform: translateY(0);
       opacity: 1;
@@ -621,295 +686,264 @@
 </head>
 <body>
 
-  <!-- Passcode Login Modal -->
-  <div id="passModal" class="passModal">
-    <div class="passBox">
-      <h2>🔐 ADMIN LOCK</h2>
-      <p>Enter Master Security Passcode to Access User Management</p>
-      <input type="password" id="passInput" class="passInput" placeholder="••••••••" autocomplete="off">
-      <button id="loginBtn" class="btnSaveSettings" style="width: 100%;">UNLOCK ADMIN PANEL</button>
+  <!-- Passcode Protection Modal -->
+  <div id="lockModal" class="lockModal">
+    <div class="lockBox">
+      <div class="lockIcon">🔐</div>
+      <h2>ADMIN CONTROL PANEL</h2>
+      <p>Enter master passcode to unlock management suite</p>
+      <input type="password" id="passInput" class="passInput" placeholder="Enter Passcode" autofocus autocomplete="off">
+      <button id="unlockBtn" class="unlockBtn">UNLOCK SYSTEM</button>
     </div>
   </div>
 
-  <!-- Header Navigation -->
-  <header class="adminNav">
-    <div class="brandSection">
-      <img id="headerLogo" class="brandLogo" src="https://www.image2url.com/r2/default/images/1783499309745-1177cad2-56e0-4922-b8ac-0b895b024146.jpg" alt="Logo">
+  <div id="toast" class="toast">Action completed successfully</div>
+
+  <header>
+    <div class="brand">
+      <div class="brandSigil">⚙️</div>
       <div class="brandText">
-        <h1 id="headerTitle">PRIVATE WINGO</h1>
-        <p>REALTIME FIREBASE USER MANAGEMENT</p>
+        <h1>PRIVATE WINGO ADMIN</h1>
+        <p>PHP + SQL USER MANAGEMENT & SYSTEM CORE</p>
       </div>
     </div>
-
     <div class="topRightActions">
-      <div class="liveBadge">
-        <span class="livePulse"></span>
-        FIREBASE LIVE
-      </div>
+      <div class="liveBadge"><span class="livePulse"></span> SQL LIVE CONNECTED</div>
       <button id="logoutBtn" class="logoutBtn">LOCK PANEL</button>
     </div>
   </header>
 
-  <!-- Main Container -->
   <main class="container">
+    <!-- Metric Cards Overview -->
+    <section class="metricsGrid">
+      <div class="metricCard">
+        <div class="metricLabel">Total Registered Users</div>
+        <div id="metricTotal" class="metricVal blue">0</div>
+      </div>
+      <div class="metricCard">
+        <div class="metricLabel">Pending Approvals</div>
+        <div id="metricPending" class="metricVal gold">0</div>
+      </div>
+      <div class="metricCard">
+        <div class="metricLabel">Approved Users</div>
+        <div id="metricApproved" class="metricVal green">0</div>
+      </div>
+      <div class="metricCard">
+        <div class="metricLabel">Rejected Users</div>
+        <div id="metricRejected" class="metricVal red">0</div>
+      </div>
+    </section>
 
-    <!-- Metrics Cards Summary -->
-    <div class="metricsGrid">
-      <div class="metricCard total">
-        <div class="metricLabel">TOTAL REGISTRATIONS</div>
-        <div id="countTotal" class="metricVal">0</div>
-      </div>
-      <div class="metricCard pending">
-        <div class="metricLabel">PENDING APPROVALS</div>
-        <div id="countPending" class="metricVal" style="color: var(--accent-orange);">0</div>
-      </div>
-      <div class="metricCard approved">
-        <div class="metricLabel">APPROVED USERS</div>
-        <div id="countApproved" class="metricVal" style="color: var(--accent-green);">0</div>
-      </div>
-      <div class="metricCard rejected">
-        <div class="metricLabel">REJECTED REQUESTS</div>
-        <div id="countRejected" class="metricVal" style="color: var(--accent-red);">0</div>
-      </div>
-    </div>
-
-    <!-- Toolbar Filters -->
-    <div class="toolbar">
+    <!-- Controls Header (Tabs & Search Bar) -->
+    <section class="panelHeader">
       <div class="tabGroup">
-        <button class="tabBtn active" data-tab="pending">⏳ Pending (<span id="tabCountPending">0</span>)</button>
-        <button class="tabBtn" data-tab="approved">✅ Approved (<span id="tabCountApproved">0</span>)</button>
-        <button class="tabBtn" data-tab="rejected">❌ Rejected (<span id="tabCountRejected">0</span>)</button>
-        <button class="tabBtn" data-tab="all">👥 All Users (<span id="tabCountAll">0</span>)</button>
-        <button class="tabBtn" data-tab="settings">⚙️ System Settings</button>
+        <button class="tabBtn active" data-filter="pending">⏳ PENDING (<span id="countPendingTab">0</span>)</button>
+        <button class="tabBtn" data-filter="approved">✅ APPROVED</button>
+        <button class="tabBtn" data-filter="rejected">❌ REJECTED</button>
+        <button class="tabBtn" data-filter="all">👥 ALL USERS</button>
+        <button class="tabBtn" data-filter="settings">⚙️ SETTINGS</button>
       </div>
 
-      <div id="searchGroup" class="searchBox">
+      <div id="searchBoxWrap" class="searchBox">
         <span class="searchIcon">🔍</span>
-        <input type="text" id="searchInput" class="searchInput" placeholder="Filter by Name, ID or UID...">
+        <input type="text" id="searchInput" class="searchInput" placeholder="Filter by Name, Username, TG ID, UID...">
       </div>
-    </div>
+    </section>
 
-    <!-- Content Table Container -->
-    <div id="usersContainer" class="contentCard">
-      <div class="tableResponsive">
+    <!-- Data Table View -->
+    <section id="tableContainer" class="tableCard">
+      <div class="tableWrapper">
         <table>
           <thead>
             <tr>
-              <th>User Details</th>
+              <th>Telegram User</th>
               <th>Telegram ID</th>
               <th>Submitted Game UID</th>
               <th>Registration Date</th>
               <th>Status</th>
-              <th>Actions</th>
+              <th style="text-align: right;">Actions</th>
             </tr>
           </thead>
           <tbody id="userTableBody">
             <tr>
-              <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
-                Loading user records from Firebase...
+              <td colspan="6" style="text-align:center; padding:3rem; color:var(--text-muted); font-family:'JetBrains Mono';">
+                Loading SQL user records...
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
 
-    <!-- Settings Container (Hidden by Default) -->
-    <div id="settingsContainer" class="contentCard" style="display: none;">
-      <div class="settingsForm">
-        <h2 style="font-weight: 800; margin-bottom: 1.5rem; color: var(--accent-cyan);">⚙️ GLOBAL SYSTEM CONFIGURATION</h2>
-        
+    <!-- Settings View (Hidden by default) -->
+    <section id="settingsContainer" class="settingsCard" style="display: none;">
+      <h3>⚙️ SYSTEM CORE CONFIGURATION</h3>
+      <div class="formGrid">
         <div class="formGroup">
-          <label>APPLICATION / BOT TITLE</label>
+          <label>APP / BOT NAME</label>
           <input type="text" id="cfgAppName" placeholder="PRIVATE WINGO">
         </div>
         <div class="formGroup">
-          <label>LOGO IMAGE URL</label>
+          <label>APP LOGO IMAGE URL</label>
           <input type="text" id="cfgLogoUrl" placeholder="https://...">
         </div>
         <div class="formGroup">
-          <label>GAME REGISTER LINK</label>
+          <label>REGISTER BUTTON LINK (Game URL)</label>
           <input type="text" id="cfgRegisterLink" placeholder="https://t.me/abbsydurov">
         </div>
         <div class="formGroup">
-          <label>WELCOME / SUPPORT MESSAGE</label>
-          <input type="text" id="cfgWelcomeMsg" placeholder="Contact @abbsydurov for support">
-        </div>
-        <div class="formGroup">
-          <label>TELEGRAM OWNER LINK</label>
+          <label>TELEGRAM OWNER / SUPPORT LINK</label>
           <input type="text" id="cfgTgOwnerLink" placeholder="https://t.me/abbsydurov">
         </div>
-
-        <button id="saveCfgBtn" class="btnSaveSettings">SAVE REALTIME SETTINGS</button>
+        <div class="formGroup full">
+          <label>WELCOME / SUPPORT MESSAGE</label>
+          <textarea id="cfgWelcomeMsg" rows="3" placeholder="Support message..."></textarea>
+        </div>
       </div>
-    </div>
-
+      <button id="saveCfgBtn" class="saveBtn">SAVE SYSTEM CONFIGURATION</button>
+    </section>
   </main>
 
-  <!-- Toast Notification -->
-  <div id="toast" class="toast">Action completed successfully</div>
-
   <script>
-    // ============================================================
-    // FIREBASE CONFIGURATION
-    // ============================================================
-    const firebaseConfig = {
-      apiKey: "AIzaSyBUl24gAzXYSDa6_tHUpsr10b7otk1buPg",
-      authDomain: "phxm-official.firebaseapp.com",
-      databaseURL: "https://phxm-official-default-rtdb.firebaseio.com",
-      projectId: "phxm-official",
-      storageBucket: "phxm-official.firebasestorage.app",
-      messagingSenderId: "484171889721",
-      appId: "1:484171889721:android:6cfdef93fa7f64f28861e8"
-    };
+    let allUsersList = [];
+    let currentFilter = 'pending';
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    // DOM Selectors
     const $ = id => document.getElementById(id);
 
-    // Toast helper
-    function toast(msg) {
-      const t = $('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      clearTimeout(window.__t);
-      window.__t = setTimeout(() => t.classList.remove('show'), 2500);
-    }
-
-    // Passcode Auth
+    // Passcode Unlock Logic
     const PASSCODE = "admin123";
-    if (sessionStorage.getItem("admin_unlocked") === "true") {
-      $('passModal').style.display = 'none';
-    }
+    
+    $('unlockBtn').addEventListener('click', checkPasscode);
+    $('passInput').addEventListener('keypress', e => { if (e.key === 'Enter') checkPasscode(); });
 
-    $('loginBtn').addEventListener('click', () => {
+    function checkPasscode() {
       const input = $('passInput').value;
       if (input === PASSCODE || input === "admin") {
-        sessionStorage.setItem("admin_unlocked", "true");
-        $('passModal').style.display = 'none';
-        toast("🔓 Admin Panel Unlocked");
+        $('lockModal').style.display = 'none';
+        showToast('🔓 Admin Panel Unlocked!');
+        loadUsersData();
+        loadSettingsData();
       } else {
-        alert("Incorrect Passcode!");
+        alert('❌ Incorrect Admin Passcode!');
       }
-    });
+    }
 
     $('logoutBtn').addEventListener('click', () => {
-      sessionStorage.removeItem("admin_unlocked");
-      $('passModal').style.display = 'flex';
+      $('lockModal').style.display = 'flex';
       $('passInput').value = '';
     });
 
-    // Global State
-    let usersData = [];
-    let activeTab = 'pending';
-    let searchQuery = '';
-
-    // Realtime User Data Listener
-    db.ref('users').on('value', snapshot => {
-      const val = snapshot.val() || {};
-      usersData = Object.values(val);
-      renderMetrics();
-      renderUsersTable();
-    });
-
-    // Realtime Settings Listener
-    db.ref('settings').on('value', snapshot => {
-      const val = snapshot.val() || {};
-      if (val.app_name) $('headerTitle').textContent = val.app_name;
-      if (val.logo_url) $('headerLogo').src = val.logo_url;
-      
-      $('cfgAppName').value = val.app_name || 'PRIVATE WINGO';
-      $('cfgLogoUrl').value = val.logo_url || '';
-      $('cfgRegisterLink').value = val.register_link || 'https://t.me/abbsydurov';
-      $('cfgWelcomeMsg').value = val.welcome_message || '';
-      $('cfgTgOwnerLink').value = val.tg_owner_link || 'https://t.me/abbsydurov';
-    });
-
-    // Calculate Metrics
-    function renderMetrics() {
-      const total = usersData.length;
-      const pending = usersData.filter(u => u.status === 'pending').length;
-      const approved = usersData.filter(u => u.status === 'approved').length;
-      const rejected = usersData.filter(u => u.status === 'rejected').length;
-
-      $('countTotal').textContent = total;
-      $('countPending').textContent = pending;
-      $('countApproved').textContent = approved;
-      $('countRejected').textContent = rejected;
-
-      $('tabCountPending').textContent = pending;
-      $('tabCountApproved').textContent = approved;
-      $('tabCountRejected').textContent = rejected;
-      $('tabCountAll').textContent = total;
+    function showToast(msg) {
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
     }
 
-    // Render User Table based on active tab and search filter
-    function renderUsersTable() {
-      if (activeTab === 'settings') return;
+    // Load Users from api.php
+    function loadUsersData() {
+      fetch('api.php?action=admin_get_users')
+        .then(r => r.json())
+        .then(res => {
+          if (res.success) {
+            allUsersList = res.users || [];
+            updateMetrics();
+            renderTable();
+          }
+        })
+        .catch(err => console.error(err));
+    }
 
-      let filtered = usersData;
+    // Load Settings from api.php
+    function loadSettingsData() {
+      fetch('api.php?action=get_settings')
+        .then(r => r.json())
+        .then(res => {
+          if (res.success && res.settings) {
+            const s = res.settings;
+            $('cfgAppName').value = s.app_name || '';
+            $('cfgLogoUrl').value = s.logo_url || '';
+            $('cfgRegisterLink').value = s.register_link || '';
+            $('cfgTgOwnerLink').value = s.tg_owner_link || '';
+            $('cfgWelcomeMsg').value = s.welcome_message || '';
+          }
+        })
+        .catch(err => console.error(err));
+    }
 
-      // Filter by tab status
-      if (activeTab === 'pending') filtered = filtered.filter(u => u.status === 'pending');
-      else if (activeTab === 'approved') filtered = filtered.filter(u => u.status === 'approved');
-      else if (activeTab === 'rejected') filtered = filtered.filter(u => u.status === 'rejected');
+    // Metrics Overview Calculator
+    function updateMetrics() {
+      const total = allUsersList.length;
+      const pending = allUsersList.filter(u => u.status === 'pending').length;
+      const approved = allUsersList.filter(u => u.status === 'approved').length;
+      const rejected = allUsersList.filter(u => u.status === 'rejected').length;
 
-      // Filter by search query
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        filtered = filtered.filter(u => 
-          (u.first_name || '').toLowerCase().includes(q) ||
-          (u.username || '').toLowerCase().includes(q) ||
-          (u.telegram_id || '').toLowerCase().includes(q) ||
-          (u.uid || '').toLowerCase().includes(q)
-        );
-      }
+      $('metricTotal').textContent = total;
+      $('metricPending').textContent = pending;
+      $('metricApproved').textContent = approved;
+      $('metricRejected').textContent = rejected;
+      $('countPendingTab').textContent = pending;
+    }
 
-      // Sort by newest first
-      filtered.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
-
+    // Render Data Table with Filters & Search
+    function renderTable() {
       const tbody = $('userTableBody');
+      const searchQuery = $('searchInput').value.toLowerCase().trim();
+
+      let filtered = allUsersList.filter(u => {
+        if (currentFilter === 'pending' && u.status !== 'pending') return false;
+        if (currentFilter === 'approved' && u.status !== 'approved') return false;
+        if (currentFilter === 'rejected' && u.status !== 'rejected') return false;
+
+        if (searchQuery) {
+          const matchName = (u.first_name || '').toLowerCase().includes(searchQuery);
+          const matchUser = (u.username || '').toLowerCase().includes(searchQuery);
+          const matchTg = String(u.telegram_id || '').includes(searchQuery);
+          const matchUid = String(u.uid || '').toLowerCase().includes(searchQuery);
+          return matchName || matchUser || matchTg || matchUid;
+        }
+
+        return true;
+      });
+
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
-              No user records match the selected filter.
+            <td colspan="6" style="text-align:center; padding:3rem; color:var(--text-muted); font-family:'JetBrains Mono';">
+              No matching user records found in database.
             </td>
-          </tr>
-        `;
+          </tr>`;
         return;
       }
 
       tbody.innerHTML = filtered.map(u => {
+        const photo = u.photo_url 
+          ? `<img class="userAvatar" src="${u.photo_url}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+             <div class="avatarFallback" style="display:none">${(u.first_name || 'U').charAt(0)}</div>`
+          : `<div class="avatarFallback">${(u.first_name || 'U').charAt(0)}</div>`;
+
         const dateStr = u.created_at ? new Date(u.created_at).toLocaleString() : 'N/A';
-        const photoElem = u.photo_url 
-          ? `<img class="userAvatar" src="${u.photo_url}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">`
-          : '';
-        const fallbackElem = `<div class="userAvatarFallback" style="${u.photo_url ? 'display:none' : ''}">${(u.first_name || 'U')[0].toUpperCase()}</div>`;
 
         return `
           <tr>
             <td>
-              <div class="userInfo">
-                ${photoElem}
-                ${fallbackElem}
+              <div class="userProfileCell">
+                ${photo}
                 <div>
                   <div class="userName">${u.first_name || 'User'}</div>
-                  <div class="userSub">@${u.username || 'no_username'}</div>
+                  <div class="userHandle">@${u.username || 'no_handle'}</div>
                 </div>
               </div>
             </td>
-            <td style="font-family: 'JetBrains Mono', monospace;">${u.telegram_id}</td>
-            <td><span class="uidCode">${u.uid || 'N/A'}</span></td>
-            <td style="font-size: 12px; color: var(--text-muted);">${dateStr}</td>
+            <td><code class="codeBadge">${u.telegram_id}</code></td>
+            <td><code class="codeBadge" style="color:var(--accent-green);">${u.uid || 'N/A'}</code></td>
+            <td style="font-family:'JetBrains Mono'; font-size:12px; color:var(--text-muted);">${dateStr}</td>
             <td><span class="statusBadge ${u.status}">${u.status}</span></td>
-            <td>
-              <div class="actionBtns">
+            <td style="text-align: right;">
+              <div class="actionGroup" style="justify-content: flex-end;">
                 ${u.status !== 'approved' ? `<button class="btnApprove" onclick="updateStatus('${u.telegram_id}', 'approved')">✅ Approve</button>` : ''}
                 ${u.status !== 'rejected' ? `<button class="btnReject" onclick="updateStatus('${u.telegram_id}', 'rejected')">❌ Reject</button>` : ''}
-                <button class="btnDelete" onclick="deleteUserRecord('${u.telegram_id}')">🗑️</button>
+                <button class="btnDelete" onclick="deleteUser('${u.telegram_id}')" title="Delete User">🗑️</button>
               </div>
             </td>
           </tr>
@@ -918,64 +952,95 @@
     }
 
     // Action Handlers
-    window.updateStatus = function(telegramId, status) {
-      db.ref('users/' + telegramId + '/status').set(status).then(() => {
-        toast(`✅ User status updated to ${status.toUpperCase()}`);
-      }).catch(err => {
-        toast("❌ Error: " + err.message);
+    window.updateStatus = function(tgId, newStatus) {
+      fetch('api.php?action=admin_update_status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegram_id: tgId, status: newStatus })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          showToast(`✅ Status updated to ${newStatus.toUpperCase()}`);
+          loadUsersData();
+        } else {
+          alert('Error: ' + res.error);
+        }
       });
     };
 
-    window.deleteUserRecord = function(telegramId) {
-      if (confirm("Are you sure you want to delete this user record from Firebase?")) {
-        db.ref('users/' + telegramId).remove().then(() => {
-          toast("🗑️ User record deleted");
-        });
-      }
+    window.deleteUser = function(tgId) {
+      if (!confirm(`Are you sure you want to delete user ${tgId}?`)) return;
+
+      fetch('api.php?action=admin_delete_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegram_id: tgId })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          showToast('🗑️ User record deleted');
+          loadUsersData();
+        }
+      });
     };
 
-    // Tab Switching
+    // Tab Navigation
     document.querySelectorAll('.tabBtn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.tabBtn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        activeTab = btn.dataset.tab;
+        currentFilter = btn.dataset.filter;
 
-        if (activeTab === 'settings') {
-          $('usersContainer').style.display = 'none';
-          $('searchGroup').style.display = 'none';
+        if (currentFilter === 'settings') {
+          $('tableContainer').style.display = 'none';
+          $('searchBoxWrap').style.display = 'none';
           $('settingsContainer').style.display = 'block';
         } else {
           $('settingsContainer').style.display = 'none';
-          $('searchGroup').style.display = 'block';
-          $('usersContainer').style.display = 'block';
-          renderUsersTable();
+          $('tableContainer').style.display = 'block';
+          $('searchBoxWrap').style.display = 'block';
+          renderTable();
         }
       });
     });
 
     // Search Input Listener
-    $('searchInput').addEventListener('input', e => {
-      searchQuery = e.target.value;
-      renderUsersTable();
-    });
+    $('searchInput').addEventListener('input', renderTable);
 
-    // Save Settings
+    // Save Settings Form
     $('saveCfgBtn').addEventListener('click', () => {
-      const payload = {
+      const settingsPayload = {
         app_name: $('cfgAppName').value.trim(),
         logo_url: $('cfgLogoUrl').value.trim(),
         register_link: $('cfgRegisterLink').value.trim(),
-        welcome_message: $('cfgWelcomeMsg').value.trim(),
-        tg_owner_link: $('cfgTgOwnerLink').value.trim()
+        tg_owner_link: $('cfgTgOwnerLink').value.trim(),
+        welcome_message: $('cfgWelcomeMsg').value.trim()
       };
 
-      db.ref('settings').update(payload).then(() => {
-        toast("✅ System Settings Saved & Synced Live!");
-      }).catch(err => {
-        toast("❌ Save Error: " + err.message);
-      });
+      fetch('api.php?action=admin_save_settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ settings: settingsPayload })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          showToast('✅ System Settings Saved & Live Synced!');
+        } else {
+          alert('Error: ' + res.error);
+        }
+      })
+      .catch(err => alert('Save failed: ' + err.message));
     });
+
+    // Auto-refresh users every 5 seconds
+    setInterval(() => {
+      if ($('lockModal').style.display === 'none') {
+        loadUsersData();
+      }
+    }, 5000);
   </script>
 </body>
 </html>
